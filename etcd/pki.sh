@@ -59,14 +59,14 @@ EOF
 # 	apiserver
 # 	flannel , 每个node节点都需要安装。
 
-	
+#  hosts : 为etcd服务端配置一个域名。客户端访问这个域名时需要做hosts 或者 DNS。
 cat >etcd-client-csr.json<<EOF
 {
     "CN": "kube-etcd",
     "hosts": [
     	"localhost",
     	"127.0.0.1",
-		"192.168.0.0/20"
+		"etcd.svc.local" 
     ],
     "key": {
         "algo": "rsa",

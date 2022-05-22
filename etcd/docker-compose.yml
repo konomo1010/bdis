@@ -5,7 +5,7 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: "10.16.18.0/24"
+        - subnet: "10.16.18.0/24"  # 需根据实际网络环境规划
 services:
   etcd-01:
     image: konomo/etcd
@@ -15,8 +15,8 @@ services:
       - DATA_DIR=/data/etcd
       - LISTEN_PEER_URLS=https://0.0.0.0:2380
       - LISTEN_CLIENT_URLS=https://0.0.0.0:2379
+      - ADVERTISE_CLIENT_URLS=https://0.0.0.0:2379
       - INITIAL_ADVERTISE_PEER_URLS=https://etcd-01:2380
-      - ADVERTISE_CLIENT_URLS=https://etcd-01:2379
       - INITIAL_CLUSTER=etcd-01=https://etcd-01:2380,etcd-02=https://etcd-02:2380,etcd-03=https://etcd-03:2380
       - INITIAL_CLUSTER_TOKEN=etcd-cluster
       - INITIAL_CLUSTER_STATE=new
@@ -53,8 +53,8 @@ services:
       - DATA_DIR=/data/etcd
       - LISTEN_PEER_URLS=https://0.0.0.0:2380
       - LISTEN_CLIENT_URLS=https://0.0.0.0:2379
+      - ADVERTISE_CLIENT_URLS=https://0.0.0.0:2379
       - INITIAL_ADVERTISE_PEER_URLS=https://etcd-02:2380
-      - ADVERTISE_CLIENT_URLS=https://etcd-02:2379
       - INITIAL_CLUSTER=etcd-01=https://etcd-01:2380,etcd-02=https://etcd-02:2380,etcd-03=https://etcd-03:2380
       - INITIAL_CLUSTER_TOKEN=etcd-cluster
       - INITIAL_CLUSTER_STATE=new
@@ -89,8 +89,8 @@ services:
       - DATA_DIR=/data/etcd
       - LISTEN_PEER_URLS=https://0.0.0.0:2380
       - LISTEN_CLIENT_URLS=https://0.0.0.0:2379
+      - ADVERTISE_CLIENT_URLS=https://0.0.0.0:2379
       - INITIAL_ADVERTISE_PEER_URLS=https://etcd-03:2380
-      - ADVERTISE_CLIENT_URLS=https://etcd-03:2379
       - INITIAL_CLUSTER=etcd-01=https://etcd-01:2380,etcd-02=https://etcd-02:2380,etcd-03=https://etcd-03:2380
       - INITIAL_CLUSTER_TOKEN=etcd-cluster
       - INITIAL_CLUSTER_STATE=new
@@ -117,9 +117,7 @@ services:
     entrypoint:
       - /root/entrypoint.sh
 
-  etcdkeeper:
-    image: deltaprojects/etcdkeeper
-    container_name: etcdkeeper
-    ports:
-      - 8088:8080
-    network_mode: "host"
+  # etcdkeeper:
+  #   image: deltaprojects/etcdkeeper
+  #   container_name: etcdkeeper
+  #   network_mode: "host"
