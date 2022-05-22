@@ -2,13 +2,58 @@
 
 
 
-客户端 ， etcd 集群 peer 都使用 TLS 通信，所以需要规划证书签名请求csr。参考 `etcd.cfssl.sh`
+客户端 ， etcd 集群 peer 都使用 TLS 通信，所以需要规划证书签名请求csr。参考 `pki.sh`
+
+
+
+* 目录参考
+
+  ```bash
+  [root@k8-master-01 k8s-deploy]# tree etcd
+  etcd
+  ├── docker-compose.yml
+  ├── docker-compose.yml.bak
+  ├── pkg
+  │   ├── Dockerfile
+  │   ├── entrypoint.sh
+  │   ├── etcd-conf.yaml
+  │   └── etcd-v3.5.4-linux-amd64.tar.gz
+  ├── pki
+  │   ├── etcd-ca-config.json
+  │   ├── etcd-ca.csr
+  │   ├── etcd-ca-csr.json
+  │   ├── etcd-ca-key.pem
+  │   ├── etcd-ca.pem
+  │   ├── etcd-client.csr
+  │   ├── etcd-client-csr.json
+  │   ├── etcd-client-key.pem
+  │   ├── etcd-client.pem
+  │   ├── etcd-peer.csr
+  │   ├── etcd-peer-csr.json
+  │   ├── etcd-peer-key.pem
+  │   ├── etcd-peer.pem
+  │   ├── kube-apiserver-etcd-client.csr
+  │   ├── kube-apiserver-etcd-client-csr.json
+  │   ├── kube-apiserver-etcd-client-key.pem
+  │   ├── kube-apiserver-etcd-client.pem
+  │   ├── kube-etcd-healthcheck-client.csr
+  │   ├── kube-etcd-healthcheck-client-csr.json
+  │   ├── kube-etcd-healthcheck-client-key.pem
+  │   ├── kube-etcd-healthcheck-client.pem
+  │   └── pki.sh
+  └── README.md
+  ```
+
+  
 
 
 
 ```bash
 wget https://github.com/etcd-io/etcd/releases/download/v3.5.4/etcd-v3.5.4-linux-amd64.tar.gz
 docker build -t konomo/etcd . -f Dockerfile
+
+mkdir -p /data/etcd-0{1..3}
+
 
 ```
 
