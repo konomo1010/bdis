@@ -1,0 +1,31 @@
+name: ${NAME}
+data-dir: ${DATA_DIR}
+listen-peer-urls: ${LISTEN_PEER_URLS}
+listen-client-urls: ${LISTEN_CLIENT_URLS}
+initial-advertise-peer-urls: ${INITIAL_ADVERTISE_PEER_URLS}
+advertise-client-urls: ${ADVERTISE_CLIENT_URLS}
+initial-cluster: ${INITIAL_CLUSTER}
+initial-cluster-token: ${INITIAL_CLUSTER_TOKEN}
+initial-cluster-state: ${INITIAL_CLUSTER_STATE}
+
+
+client-transport-security:
+  auto-tls: ${CLIENT_AUTO_TLS}
+  client-cert-auth: ${CLIENT_CLIENT_CERT_AUTH}
+  cert-file: ${CLIENT_CERT_FILE}
+  key-file: ${CLIENT_KEY_FILE}
+  trusted-ca-file: ${CLIENT_TRUSTED_CA_FILE}
+  
+peer-transport-security:
+  auto-tls: ${PEER_AUTO_TLS}
+  client-cert-auth: ${PEER_CLIENT_CERT_AUTH}
+  cert-file: ${PEER_CERT_FILE}
+  key-file: ${PEER_KEY_FILE}
+  trusted-ca-file: ${PEER_TRUSTED_CA_FILE}
+
+
+enable-pprof: ${ENABLE_PPROF}
+log-level: ${LOG_LEVEL}
+logger: ${LOGGER}
+log-outputs: ${LOG_OUTPUTS}
+
