@@ -1,125 +1,12 @@
 version: '3'
 networks:
-  mynet:
+  keeper:
     driver: bridge
     ipam:
       driver: default
       config:
-        - subnet: "10.16.18.0/24"  # 需根据实际网络环境规划
+        - subnet: "10.16.11.0/24"  # 需根据实际网络环境规划
 services:
-  etcd-01:
-    restart: always
-    image: konomo/etcd
-    container_name: etcd-01
-    environment:
-      - NAME=etcd-01
-      - DATA_DIR=/data/etcd
-      - LISTEN_PEER_URLS=https://0.0.0.0:2380
-      - LISTEN_CLIENT_URLS=https://0.0.0.0:2379
-      - ADVERTISE_CLIENT_URLS=https://0.0.0.0:2379
-      - INITIAL_ADVERTISE_PEER_URLS=https://etcd-01:2380
-      - INITIAL_CLUSTER=etcd-01=https://etcd-01:2380,etcd-02=https://etcd-02:2380,etcd-03=https://etcd-03:2380
-      - INITIAL_CLUSTER_TOKEN=etcd-cluster
-      - INITIAL_CLUSTER_STATE=new
-      - CLIENT_AUTO_TLS=false
-      - CLIENT_CLIENT_CERT_AUTH=true
-      - CLIENT_CERT_FILE=/root/pki/etcd-client.pem
-      - CLIENT_KEY_FILE=/root/pki/etcd-client-key.pem
-      - CLIENT_TRUSTED_CA_FILE=/root/pki/etcd-ca.pem
-      - PEER_AUTO_TLS=false
-      - PEER_CLIENT_CERT_AUTH=true
-      - PEER_CERT_FILE=/root/pki/etcd-peer.pem
-      - PEER_KEY_FILE=/root/pki/etcd-peer-key.pem
-      - PEER_TRUSTED_CA_FILE=/root/pki/etcd-ca.pem
-      - ENABLE_PPROF=true
-      - LOG_LEVEL=debug
-      - LOGGER=zap
-      - LOG_OUTPUTS=[stderr]
-    volumes:
-      - ${data_dir}/etcd-01:/data/etcd
-      - ${etcd_pki_dir}:/root/pki
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "2379:2379"
-    networks:
-      - mynet
-    entrypoint:
-      - /root/entrypoint.sh
-
-  etcd-02:
-    restart: always
-    image: konomo/etcd
-    container_name: etcd-02
-    environment:
-      - NAME=etcd-02
-      - DATA_DIR=/data/etcd
-      - LISTEN_PEER_URLS=https://0.0.0.0:2380
-      - LISTEN_CLIENT_URLS=https://0.0.0.0:2379
-      - ADVERTISE_CLIENT_URLS=https://0.0.0.0:2379
-      - INITIAL_ADVERTISE_PEER_URLS=https://etcd-02:2380
-      - INITIAL_CLUSTER=etcd-01=https://etcd-01:2380,etcd-02=https://etcd-02:2380,etcd-03=https://etcd-03:2380
-      - INITIAL_CLUSTER_TOKEN=etcd-cluster
-      - INITIAL_CLUSTER_STATE=new
-      - CLIENT_AUTO_TLS=false
-      - CLIENT_CLIENT_CERT_AUTH=true
-      - CLIENT_CERT_FILE=/root/pki/etcd-client.pem
-      - CLIENT_KEY_FILE=/root/pki/etcd-client-key.pem
-      - CLIENT_TRUSTED_CA_FILE=/root/pki/etcd-ca.pem
-      - PEER_AUTO_TLS=false
-      - PEER_CLIENT_CERT_AUTH=true
-      - PEER_CERT_FILE=/root/pki/etcd-peer.pem
-      - PEER_KEY_FILE=/root/pki/etcd-peer-key.pem
-      - PEER_TRUSTED_CA_FILE=/root/pki/etcd-ca.pem
-      - ENABLE_PPROF=true
-      - LOG_LEVEL=debug
-      - LOGGER=zap
-      - LOG_OUTPUTS=[stderr]
-    volumes:
-      - ${data_dir}/etcd-02:/data/etcd
-      - ${etcd_pki_dir}:/root/pki
-      - /etc/localtime:/etc/localtime:ro
-    networks:
-      - mynet
-    entrypoint:
-      - /root/entrypoint.sh
-
-  etcd-03:
-    restart: always
-    image: konomo/etcd
-    container_name: etcd-03
-    environment:
-      - NAME=etcd-03
-      - DATA_DIR=/data/etcd
-      - LISTEN_PEER_URLS=https://0.0.0.0:2380
-      - LISTEN_CLIENT_URLS=https://0.0.0.0:2379
-      - ADVERTISE_CLIENT_URLS=https://0.0.0.0:2379
-      - INITIAL_ADVERTISE_PEER_URLS=https://etcd-03:2380
-      - INITIAL_CLUSTER=etcd-01=https://etcd-01:2380,etcd-02=https://etcd-02:2380,etcd-03=https://etcd-03:2380
-      - INITIAL_CLUSTER_TOKEN=etcd-cluster
-      - INITIAL_CLUSTER_STATE=new
-      - CLIENT_AUTO_TLS=false
-      - CLIENT_CLIENT_CERT_AUTH=true
-      - CLIENT_CERT_FILE=/root/pki/etcd-client.pem
-      - CLIENT_KEY_FILE=/root/pki/etcd-client-key.pem
-      - CLIENT_TRUSTED_CA_FILE=/root/pki/etcd-ca.pem
-      - PEER_AUTO_TLS=false
-      - PEER_CLIENT_CERT_AUTH=true
-      - PEER_CERT_FILE=/root/pki/etcd-peer.pem
-      - PEER_KEY_FILE=/root/pki/etcd-peer-key.pem
-      - PEER_TRUSTED_CA_FILE=/root/pki/etcd-ca.pem
-      - ENABLE_PPROF=true
-      - LOG_LEVEL=debug
-      - LOGGER=zap
-      - LOG_OUTPUTS=[stderr]
-    volumes:
-      - ${data_dir}/etcd-03:/data/etcd
-      - ${etcd_pki_dir}:/root/pki
-      - /etc/localtime:/etc/localtime:ro
-    networks:
-      - mynet
-    entrypoint:
-      - /root/entrypoint.sh
-
   etcdkeeper:
     restart: always
     image: konomo/etcdkeeper:v1
@@ -133,9 +20,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ${etcd_pki_dir}:/root/pki
+      - ${etcd_pki_dir}:/root/pki  # 如果 TLS 则配置。 
       - /etc/localtime:/etc/localtime:ro
     networks:
-      - mynet
+      - keeper
     entrypoint:
       - /root/entrypoint.sh
