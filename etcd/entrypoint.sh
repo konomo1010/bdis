@@ -2,6 +2,7 @@
 
 ETCD_CONFIG_FILE=/root/conf/etcd-conf.yaml
 
+
 etcd_env_vars=(
     NAME
     DATA_DIR

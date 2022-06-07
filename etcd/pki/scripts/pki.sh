@@ -1,4 +1,12 @@
-cat >etcd-ca-config.json<<EOF
+filesSave=../files
+
+if [ ! -d ${filesSave} ];then
+    mkdir -p ../files
+fi
+
+########################## CA
+
+cat >${filesSave}/etcd-ca-config.json<<EOF
 {
     "signing": {
         "default": {
@@ -37,7 +45,7 @@ cat >etcd-ca-config.json<<EOF
 }
 EOF
 
-cat >etcd-ca-csr.json<<EOF
+cat >${filesSave}/etcd-ca-csr.json<<EOF
 {
     "CN": "etcd-ca",
     "key": {
@@ -60,12 +68,15 @@ EOF
 # 	flannel , 每个node节点都需要安装。
 
 #  hosts : 为etcd服务端配置一个域名。客户端访问这个域名时需要做hosts 或者 DNS。
-cat >etcd-client-csr.json<<EOF
+cat >${filesSave}/etcd-client-csr.json<<EOF
 {
     "CN": "kube-etcd",
     "hosts": [
     	"localhost",
     	"127.0.0.1",
+        "etcd-01",
+        "etcd-02",
+        "etcd-03",
 		"etcd.svc.local" 
     ],
     "key": {
@@ -83,7 +94,7 @@ cat >etcd-client-csr.json<<EOF
 EOF
 
 
-cat >etcd-peer-csr.json<<EOF
+cat >${filesSave}/etcd-peer-csr.json<<EOF
 {
     "CN": "kube-etcd-peer",
     "hosts": [
@@ -108,7 +119,7 @@ cat >etcd-peer-csr.json<<EOF
 EOF
 
 
-cat >kube-apiserver-etcd-client-csr.json<<EOF
+cat >${filesSave}/kube-apiserver-etcd-client-csr.json<<EOF
 {
     "CN": "kube-apiserver-etcd-client",
     "key": {
@@ -127,7 +138,7 @@ cat >kube-apiserver-etcd-client-csr.json<<EOF
 EOF
 
 
-cat >kube-etcd-healthcheck-client-csr.json<<EOF
+cat >${filesSave}/kube-etcd-healthcheck-client-csr.json<<EOF
 {
     "CN": "kube-etcd-healthcheck-client",
     "key": {
@@ -146,12 +157,28 @@ EOF
 
 
 
-cfssl gencert -initca etcd-ca-csr.json | cfssljson -bare etcd-ca -
+cfssl gencert -initca ${filesSave}/etcd-ca-csr.json | cfssljson -bare ${filesSave}/etcd-ca -
 
-cfssl gencert -ca=etcd-ca.pem -ca-key=etcd-ca-key.pem -config=etcd-ca-config.json -profile=etcd-ca etcd-client-csr.json | cfssljson -bare etcd-client -
+cfssl gencert \
+-ca=${filesSave}/etcd-ca.pem \
+-ca-key=${filesSave}/etcd-ca-key.pem \
+-config=${filesSave}/etcd-ca-config.json \
+-profile=etcd-ca ${filesSave}/etcd-client-csr.json | cfssljson -bare ${filesSave}/etcd-client -
 
-cfssl gencert -ca=etcd-ca.pem -ca-key=etcd-ca-key.pem -config=etcd-ca-config.json -profile=etcd-ca etcd-peer-csr.json | cfssljson -bare etcd-peer -
+cfssl gencert \
+-ca=${filesSave}/etcd-ca.pem \
+-ca-key=${filesSave}/etcd-ca-key.pem \
+-config=${filesSave}/etcd-ca-config.json \
+-profile=etcd-ca ${filesSave}/etcd-peer-csr.json | cfssljson -bare ${filesSave}/etcd-peer -
 
-cfssl gencert -ca=etcd-ca.pem -ca-key=etcd-ca-key.pem -config=etcd-ca-config.json -profile=etcd-ca-client kube-etcd-healthcheck-client-csr.json | cfssljson -bare kube-etcd-healthcheck-client -
+cfssl gencert \
+-ca=${filesSave}/etcd-ca.pem \
+-ca-key=${filesSave}/etcd-ca-key.pem \
+-config=${filesSave}/etcd-ca-config.json \
+-profile=etcd-ca-client ${filesSave}/kube-etcd-healthcheck-client-csr.json | cfssljson -bare ${filesSave}/kube-etcd-healthcheck-client -
 
-cfssl gencert -ca=etcd-ca.pem -ca-key=etcd-ca-key.pem -config=etcd-ca-config.json -profile=etcd-ca-client kube-apiserver-etcd-client-csr.json | cfssljson -bare kube-apiserver-etcd-client -
+cfssl gencert \
+-ca=${filesSave}/etcd-ca.pem \
+-ca-key=${filesSave}/etcd-ca-key.pem \
+-config=${filesSave}/etcd-ca-config.json \
+-profile=etcd-ca-client ${filesSave}/kube-apiserver-etcd-client-csr.json | cfssljson -bare ${filesSave}/kube-apiserver-etcd-client -

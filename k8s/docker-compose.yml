@@ -36,8 +36,8 @@ services:
       - LOGGER=zap
       - LOG_OUTPUTS=[stderr]
     volumes:
-      - /data/etcd-01:/data/etcd
-      - /root/k8s-deploy/etcd/pki:/root/pki
+      - ${data_dir}/etcd-01:/data/etcd
+      - ${etcd_pki_dir}:/root/pki
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "2379:2379"
@@ -75,8 +75,8 @@ services:
       - LOGGER=zap
       - LOG_OUTPUTS=[stderr]
     volumes:
-      - /data/etcd-02:/data/etcd
-      - /root/k8s-deploy/etcd/pki:/root/pki
+      - ${data_dir}/etcd-02:/data/etcd
+      - ${etcd_pki_dir}:/root/pki
       - /etc/localtime:/etc/localtime:ro
     networks:
       - mynet
@@ -112,28 +112,30 @@ services:
       - LOGGER=zap
       - LOG_OUTPUTS=[stderr]
     volumes:
-      - /data/etcd-03:/data/etcd
-      - /root/k8s-deploy/etcd/pki:/root/pki
+      - ${data_dir}/etcd-03:/data/etcd
+      - ${etcd_pki_dir}:/root/pki
       - /etc/localtime:/etc/localtime:ro
     networks:
       - mynet
     entrypoint:
       - /root/entrypoint.sh
 
-  # etcdkeeper:
-  #   restart: always
-  #   image: deltaprojects/etcdkeeper:v1
-  #   environment:
-  #     - ETCDKEEPER_USETLS=true
-  #     - ETCDKEEPER_CACERT=etcd-ca.pem 
-  #     - ETCDKEEPER_CERT=kube-etcd-healthcheck-client.pem
-  #     - ETCDKEEPER_KEY=kube-etcd-healthcheck-client-key.pem
-  #     - ETCDKEEPER_PORT=8080
-  #   container_name: etcdkeeper
-  #   volumes:
-  #     - /root/k8s-deploy/etcd/pki:/root/pki
-  #     - /etc/localtime:/etc/localtime:ro
-  #   networks:
-  #     - mynet
-  #   entrypoint:
-  #     - /root/entrypoint.sh
+  etcdkeeper:
+    restart: always
+    image: konomo/etcdkeeper:v1
+    environment:
+      - ETCDKEEPER_USETLS=true
+      - ETCDKEEPER_CACERT=etcd-ca.pem 
+      - ETCDKEEPER_CERT=kube-etcd-healthcheck-client.pem
+      - ETCDKEEPER_KEY=kube-etcd-healthcheck-client-key.pem
+      - ETCDKEEPER_PORT=8080
+    container_name: etcdkeeper
+    ports:
+      - "8080:8080"
+    volumes:
+      - ${etcd_pki_dir}:/root/pki
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - mynet
+    entrypoint:
+      - /root/entrypoint.sh
