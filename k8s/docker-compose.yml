@@ -9,7 +9,7 @@ networks:
 services:
   etcd-01:
     restart: always
-    image: konomo/etcd
+    image: konomo/etcd/etcd:v1
     container_name: etcd-01
     environment:
       - NAME=etcd-01
@@ -48,7 +48,7 @@ services:
 
   etcd-02:
     restart: always
-    image: konomo/etcd
+    image: konomo/etcd/etcd:v1
     container_name: etcd-02
     environment:
       - NAME=etcd-02
@@ -85,7 +85,7 @@ services:
 
   etcd-03:
     restart: always
-    image: konomo/etcd
+    image: konomo/etcd/etcd:v1
     container_name: etcd-03
     environment:
       - NAME=etcd-03
@@ -122,7 +122,7 @@ services:
 
   etcdkeeper:
     restart: always
-    image: konomo/etcdkeeper:v1
+    image: konomo/etcd/etcdkeeper:v1
     environment:
       - ETCDKEEPER_USETLS=true
       - ETCDKEEPER_CACERT=etcd-ca.pem 

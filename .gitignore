@@ -14,7 +14,7 @@
 */*/packages
 */pki/files
 
-
+kubeconfig
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
