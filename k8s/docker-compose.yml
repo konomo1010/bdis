@@ -137,18 +137,22 @@ services:
       - /etc/localtime:/etc/localtime:ro
     networks:
       - mynet
+    depends_on:
+      - etcd-01
+      - etcd-02
+      - etcd-03
     entrypoint:
       - /root/entrypoint.sh
 
   kube-apiserver:
-    # restart: always
+    restart: always
     image: konomo/k8s/kube-apiserver:v1
     environment:
       - BIND_ADDRESS=0.0.0.0
       - ADVERTISE_ADDRESS=0.0.0.0
       - SECURE_PORT=6443
       - SERVICE_CLUSTER_IP_RANGE=10.1.0.0/16
-      - ETCD_SERVERS=https://etcd-01:2379
+      - ETCD_SERVERS=https://etcd-01:2379,https://etcd-02:2379,https://etcd-03:2379
       - TOKEN_AUTH_FILE=bootstrap-token.csv
       - ETCD_CAFILE=etcd-ca.pem
       - ETCD_CERTFILE=kube-apiserver-etcd-client.pem
@@ -167,11 +171,51 @@ services:
     container_name: kube-apiserver
     ports:
       - "6443:6443"
+      - "10257:10257"
     volumes:
       - ${etcd_pki_dir}:/root/pki/etcd
       - ${k8s_pki_dir}:/root/pki/k8s
       - /etc/localtime:/etc/localtime:ro
     networks:
       - mynet
+    depends_on:
+      - etcdkeeper
     entrypoint:
       - /root/kube-apiserver_entrypoint.sh
+
+
+
+  kube-controller-manager:
+    # restart: always
+    image: konomo/k8s/kube-controller-manager:v1
+    environment:
+      - CLUSTER_NAME=kubernetes
+      - BIND_ADDRESS=0.0.0.0
+      - SECURE_PORT=10257
+      - MASTER=https://kube-apiserver:6443
+      - SERVICE_CLUSTER_IP_RANGE=10.1.0.0/16
+      - CLUSTER_CIDR=10.1.0.0/16
+      - REQUESTHEADER_CLIENT_CA_FILE=k8s-ca.pem
+      - CLIENT_CA_FILE=k8s-ca.pem
+      - CLUSTER_SIGNING_CERT_FILE=k8s-ca.pem
+      - CLUSTER_SIGNING_KEY_FILE=k8s-ca-key.pem
+      - TLS_CERT_FILE=kube-apiserver-client.pem
+      - TLS_PRIVATE_KEY_FILE=kube-apiserver-client-key.pem
+      - ROOT_CA_FILE=k8s-ca.pem
+      - SERVICE_ACCOUNT_PRIVATE_KEY_FILE=k8s-ca-key.pem
+      - AUTHENTICATION_KUBECONFIG=kubeconfig
+      - AUTHORIZATION_KUBECONFIG=kubeconfig
+      - KUBECONFIG=kubeconfig
+    container_name: kube-controller-manager
+    # ports:
+    #   - "10257:10257"
+    volumes:
+      - ${k8s_pki_dir}:/root/pki/k8s
+      - /etc/localtime:/etc/localtime:ro
+    # networks:
+    #   - mynet
+    network_mode: "service:kube-apiserver"
+    depends_on:
+      - etcdkeeper
+    entrypoint:
+      - /root/kube-controller-manager_entrypoint.sh
