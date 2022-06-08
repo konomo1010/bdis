@@ -61,7 +61,7 @@ cat > ${filesSave}/k8s-ca-csr.json <<EOF
             "L": "CD",
             "ST": "SC",
             "O": "k8s",
-            "OU": "wenxilu"
+            "OU": "System"
         }
     ]
 }
@@ -115,7 +115,7 @@ cat > ${filesSave}/k8s-front-proxy-ca-csr.json <<EOF
             "L": "CD",
             "ST": "SC",
             "O": "k8s",
-            "OU": "wenxilu"
+            "OU": "System"
         }
     ]
 }
@@ -127,11 +127,14 @@ cat > ${filesSave}/kube-apiserver-csr.json <<EOF
 {
     "CN": "kube-apiserver",
     "hosts": [
-      "10.0.0.1",
+      "10.1.0.1",
       "127.0.0.1",
-      "192.168.11.10",
-      "192.168.11.100",
-      "10.6.30.190",
+      "192.168.1.101",
+      "192.168.2.11",
+      "etcd.svc.local",
+      "etcd-01",
+      "etcd-02",
+      "etcd-03",
       "kubernetes",
       "kubernetes.default",
       "kubernetes.default.svc",
@@ -148,14 +151,14 @@ cat > ${filesSave}/kube-apiserver-csr.json <<EOF
             "L": "CD",
             "ST": "SC",
             "O": "k8s",
-            "OU": "wenxilu"
+            "OU": "System"
         }
     ]
 }
 EOF
-cat > ${filesSave}/kube-apiserver-kubelet-client-csr.json <<EOF
+cat > ${filesSave}/kube-apiserver-client-csr.json <<EOF
 {
-    "CN": "kube-apiserver-kubelet-client",
+    "CN": "kube-apiserver-client",
     "key": {
         "algo": "rsa",
         "size": 2048
@@ -166,7 +169,7 @@ cat > ${filesSave}/kube-apiserver-kubelet-client-csr.json <<EOF
             "L": "CD",
             "ST": "SC",
             "O": "system:masters",
-            "OU": "wenxilu"
+            "OU": "System"
         }
     ]
 }
@@ -185,40 +188,48 @@ cat > ${filesSave}/front-proxy-client-csr.json <<EOF
             "L": "CD",
             "ST": "SC",
             "O": "k8s",
-            "OU": "wenxilu"
+            "OU": "System"
         }
     ]
 }
 EOF
 
 
-
+echo "====> k8s-ca"
 cfssl gencert -initca ${filesSave}/k8s-ca-csr.json | cfssljson -bare ${filesSave}/k8s-ca -
+echo ""
 
+echo "====> kube-apiserver"
 cfssl gencert \
 -ca=${filesSave}/k8s-ca.pem \
 -ca-key=${filesSave}/k8s-ca-key.pem \
 -config=${filesSave}/k8s-ca-config.json \
 -profile=kubernetes-ca-server \
 ${filesSave}/kube-apiserver-csr.json | cfssljson -bare ${filesSave}/kube-apiserver - 
+echo ""
 
+echo "====> kube-apiserver-client"
 cfssl gencert \
 -ca=${filesSave}/k8s-ca.pem \
 -ca-key=${filesSave}/k8s-ca-key.pem \
 -config=${filesSave}/k8s-ca-config.json \
 -profile=kubernetes-ca-client \
-${filesSave}/kube-apiserver-kubelet-client-csr.json | cfssljson -bare ${filesSave}/kube-apiserver-kubelet-client -
+${filesSave}/kube-apiserver-client-csr.json | cfssljson -bare ${filesSave}/kube-apiserver-client -
+echo ""
 
-
-
+echo "====> k8s-front-proxy-ca"
 cfssl gencert -initca ${filesSave}/k8s-front-proxy-ca-csr.json | cfssljson -bare ${filesSave}/k8s-front-proxy-ca -
+echo ""
 
+echo "====> front-proxy-client"
 cfssl gencert \
 -ca=${filesSave}/k8s-front-proxy-ca.pem \
 -ca-key=${filesSave}/k8s-front-proxy-ca-key.pem \
 -config=${filesSave}/k8s-front-proxy-ca-config.json \
 -profile=kubernetes-front-proxy-ca-client \
 ${filesSave}/front-proxy-client-csr.json | cfssljson -bare ${filesSave}/front-proxy-client -
+echo ""
 
-
+echo "====> bootstrap-token.csv"
 echo "`openssl rand -hex 16`,kubelet-bootstrap,10001,"system:kubelet-bootstrap"" > ${filesSave}/bootstrap-token.csv
+echo ""

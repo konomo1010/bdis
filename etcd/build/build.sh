@@ -17,4 +17,6 @@ docker build --rm --no-cache -t konomo/etcd/etcd:v1 . -f Dockerfile
 # mkdir -p /data/etcd-0{1..3}
 
 # 清理 dangling image
-docker rmi $(docker images -f "dangling=true" -q)
+if [ `docker images -f "dangling=true" -q|wc -l` -gt 0 ];then
+    docker rmi $(docker images -f "dangling=true" -q)
+fi

@@ -14,7 +14,7 @@ cat >${filesSave}/etcd-ca-config.json<<EOF
         },
         "profiles": {
             "etcd-ca": {
-                "expiry": "8760h",
+                "expiry": "876000h",
                 "usages": [
                     "signing",
                     "key encipherment",
@@ -24,7 +24,7 @@ cat >${filesSave}/etcd-ca-config.json<<EOF
             },
             
             "etcd-ca-server": {
-                "expiry": "8760h",
+                "expiry": "876000h",
                 "usages": [
                     "signing",
                     "key encipherment",
@@ -33,7 +33,7 @@ cat >${filesSave}/etcd-ca-config.json<<EOF
             },
             
             "etcd-ca-client": {
-                "expiry": "8760h",
+                "expiry": "876000h",
                 "usages": [
                     "signing",
                     "key encipherment",
@@ -156,29 +156,40 @@ cat >${filesSave}/kube-etcd-healthcheck-client-csr.json<<EOF
 EOF
 
 
-
+echo "====> etcd-ca"
 cfssl gencert -initca ${filesSave}/etcd-ca-csr.json | cfssljson -bare ${filesSave}/etcd-ca -
+echo ""
 
+
+echo "====> etcd-client"
 cfssl gencert \
 -ca=${filesSave}/etcd-ca.pem \
 -ca-key=${filesSave}/etcd-ca-key.pem \
 -config=${filesSave}/etcd-ca-config.json \
 -profile=etcd-ca ${filesSave}/etcd-client-csr.json | cfssljson -bare ${filesSave}/etcd-client -
+echo ""
 
+echo "====> etcd-peer"
 cfssl gencert \
 -ca=${filesSave}/etcd-ca.pem \
 -ca-key=${filesSave}/etcd-ca-key.pem \
 -config=${filesSave}/etcd-ca-config.json \
 -profile=etcd-ca ${filesSave}/etcd-peer-csr.json | cfssljson -bare ${filesSave}/etcd-peer -
+echo ""
 
+echo "====> kube-etcd-healthcheck-client"
 cfssl gencert \
 -ca=${filesSave}/etcd-ca.pem \
 -ca-key=${filesSave}/etcd-ca-key.pem \
 -config=${filesSave}/etcd-ca-config.json \
 -profile=etcd-ca-client ${filesSave}/kube-etcd-healthcheck-client-csr.json | cfssljson -bare ${filesSave}/kube-etcd-healthcheck-client -
+echo ""
 
+echo "====> kube-apiserver-etcd-client"
 cfssl gencert \
 -ca=${filesSave}/etcd-ca.pem \
 -ca-key=${filesSave}/etcd-ca-key.pem \
 -config=${filesSave}/etcd-ca-config.json \
 -profile=etcd-ca-client ${filesSave}/kube-apiserver-etcd-client-csr.json | cfssljson -bare ${filesSave}/kube-apiserver-etcd-client -
+echo ""
+

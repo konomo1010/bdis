@@ -10,8 +10,10 @@ if [ ! -e ${package_dir}/${package_name} ];then
     wget -P ${package_dir} ${download_url}
 fi
 
-docker build --rm -t konomo/etcd/etcdkeeper:v1 . -f Dockerfile
+docker build --rm --no-cache -t konomo/etcd/etcdkeeper:v1 . -f Dockerfile
 
 
 # 清理 dangling image
-docker rmi $(docker images -f "dangling=true" -q)
+if [ `docker images -f "dangling=true" -q|wc -l` -gt 0 ];then
+    docker rmi $(docker images -f "dangling=true" -q)
+fi
