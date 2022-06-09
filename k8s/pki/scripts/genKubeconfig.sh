@@ -51,4 +51,8 @@ echo "====> create kube-scheduler.kubeconfig"
 kubeconfig kube-scheduler kubernetes default-scheduler kube-scheduler.kubeconfig kube-scheduler
 echo ""
 
+echo "====> create kube-proxy.kubeconfig"
+kubeconfig kube-proxy kubernetes default-proxy kube-proxy.kubeconfig kube-proxy
+echo ""
+
 cp -f ${PKI_DIR}/cluster-admin.kubeconfig ~/.kube/config

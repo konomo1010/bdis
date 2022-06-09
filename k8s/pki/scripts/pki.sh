@@ -295,6 +295,57 @@ ${filesSave}/cluster-admin-csr.json | cfssljson -bare ${filesSave}/cluster-admin
 echo ""
 
 
+
+
+
+
+cat > ${filesSave}/kube-proxy-csr.json <<EOF
+{
+    "CN": "system:kube-proxy",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "CN",
+            "L": "CD",
+            "ST": "SC",
+            "OU": "System"
+        }
+    ]
+}
+EOF
+
+
+echo "====> kube-proxy"
+cfssl gencert \
+-ca=${filesSave}/k8s-ca.pem \
+-ca-key=${filesSave}/k8s-ca-key.pem \
+-config=${filesSave}/k8s-ca-config.json \
+-profile=kubernetes-ca-client \
+${filesSave}/kube-proxy-csr.json | cfssljson -bare ${filesSave}/kube-proxy -
+echo ""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 echo "====> k8s-front-proxy-ca"
 cfssl gencert -initca ${filesSave}/k8s-front-proxy-ca-csr.json | cfssljson -bare ${filesSave}/k8s-front-proxy-ca -
 echo ""

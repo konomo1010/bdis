@@ -39,8 +39,6 @@ services:
       - ${data_dir}/etcd-01:/data/etcd
       - ${etcd_pki_dir}:/root/pki
       - /etc/localtime:/etc/localtime:ro
-    # ports:
-    #   - "2379:2379"
     networks:
       - mynet
     entrypoint:
@@ -171,7 +169,6 @@ services:
     container_name: kube-apiserver
     ports:
       - "6443:6443"
-      # - "10257:10257"
     volumes:
       - ${etcd_pki_dir}:/root/pki/etcd
       - ${k8s_pki_dir}:/root/pki/k8s
@@ -182,8 +179,6 @@ services:
       - etcdkeeper
     entrypoint:
       - /root/kube-apiserver_entrypoint.sh
-
-
 
   kube-controller-manager:
     restart: always
@@ -207,19 +202,14 @@ services:
       - AUTHORIZATION_KUBECONFIG=kube-controller-manager.kubeconfig
       - KUBECONFIG=kube-controller-manager.kubeconfig
     container_name: kube-controller-manager
-    # ports:
-    #   - "10257:10257"
     volumes:
       - ${k8s_pki_dir}:/root/pki/k8s
       - /etc/localtime:/etc/localtime:ro
-    # networks:
-    #   - mynet
     network_mode: "service:kube-apiserver"
     depends_on:
       - kube-apiserver
     entrypoint:
       - /root/kube-controller-manager_entrypoint.sh
-
 
   kube-scheduler:
     restart: always
@@ -242,3 +232,23 @@ services:
       - kube-apiserver
     entrypoint:
       - /root/kube-scheduler_entrypoint.sh
+
+
+
+  kube-proxy:
+    # restart: always
+    image: konomo/k8s/kube-proxy:v1
+    environment:
+      - BIND_ADDRESS=0.0.0.0
+      - MASTER=https://kube-apiserver:6443
+      - HOSTNAME_OVERRIDE=master
+      - KUBECONFIG=kube-proxy.kubeconfig
+    container_name: kube-proxy
+    volumes:
+      - ${k8s_pki_dir}:/root/pki/k8s
+      - /etc/localtime:/etc/localtime:ro
+    network_mode: "host"
+    depends_on:
+      - kube-apiserver
+    entrypoint:
+      - /root/kube-proxy_entrypoint.sh
