@@ -36,6 +36,9 @@ case $arges in
         docker build --rm --no-cache -t konomo/k8s/kube-proxy:v1 . -f kube-proxy.dockerfile
         echo ""
     ;;
+
+    
+
     *)
         echo "nothing to do ; Bye-Bye"
         exit

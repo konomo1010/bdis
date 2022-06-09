@@ -55,4 +55,9 @@ echo "====> create kube-proxy.kubeconfig"
 kubeconfig kube-proxy kubernetes default-proxy kube-proxy.kubeconfig kube-proxy
 echo ""
 
+
+echo "====> create kubelet.kubeconfig"
+kubeconfig kubelet kubernetes kubelet kubelet.kubeconfig kubelet
+echo ""
+
 cp -f ${PKI_DIR}/cluster-admin.kubeconfig ~/.kube/config

@@ -330,6 +330,34 @@ echo ""
 
 
 
+cat > ${filesSave}/kubelet-csr.json <<EOF
+{
+    "CN": "system:node:master",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "CN",
+            "L": "CD",
+            "ST": "SC",
+            "O": "system:nodes",
+            "OU": "System"
+        }
+    ]
+}
+EOF
+
+
+echo "====> kubelet"
+cfssl gencert \
+-ca=${filesSave}/k8s-ca.pem \
+-ca-key=${filesSave}/k8s-ca-key.pem \
+-config=${filesSave}/k8s-ca-config.json \
+-profile=kubernetes-ca-client \
+${filesSave}/kubelet-csr.json | cfssljson -bare ${filesSave}/kubelet -
+echo ""
 
 
 

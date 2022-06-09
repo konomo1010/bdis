@@ -5,7 +5,7 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: "10.16.18.0/24"  # 需根据实际网络环境规划
+        - subnet: "172.16.18.0/24"  # 需根据实际网络环境规划
 services:
   etcd-01:
     restart: always
@@ -247,6 +247,7 @@ services:
     volumes:
       - ${k8s_pki_dir}:/root/pki/k8s
       - /etc/localtime:/etc/localtime:ro
+      - /:/rootfs:rw
     network_mode: "host"
     depends_on:
       - kube-apiserver
