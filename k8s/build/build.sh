@@ -12,7 +12,7 @@ if [ ! -e ${package_dir}/${package_name} ];then
     tar xfzv ${package_dir}/${package_name} -C ${package_dir}
 fi
 
-read -p "please enter [all|kube-apiserver|kube-controller-manager] : " arges
+read -p "please enter [all|kube-apiserver|kube-controller-manager|kube-scheduler] : " arges
 
 case $arges in 
     "kube-apiserver")
@@ -23,6 +23,11 @@ case $arges in
     "kube-controller-manager")
         echo "====> building kube-controller-manager docker image"
         docker build --rm --no-cache -t konomo/k8s/kube-controller-manager:v1 . -f kube-controller-manager.dockerfile
+        echo ""
+    ;;
+    "kube-scheduler")
+        echo "====> building kube-scheduler docker image"
+        docker build --rm --no-cache -t konomo/k8s/kube-scheduler:v1 . -f kube-scheduler.dockerfile
         echo ""
     ;;
     *)

@@ -39,8 +39,8 @@ services:
       - ${data_dir}/etcd-01:/data/etcd
       - ${etcd_pki_dir}:/root/pki
       - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "2379:2379"
+    # ports:
+    #   - "2379:2379"
     networks:
       - mynet
     entrypoint:
@@ -163,15 +163,15 @@ services:
       - SERVICE_ACCOUNT_ISSUER=api
       - TLS_CERT_FILE=kube-apiserver.pem
       - TLS_PRIVATE_KEY_FILE=kube-apiserver-key.pem
-      - KUBELET_CLIENT_CERTIFICATE=kube-apiserver-client.pem
-      - KUBELET_CLIENT_KEY=kube-apiserver-client-key.pem
+      - KUBELET_CLIENT_CERTIFICATE=kube-apiserver-kubelet-client.pem
+      - KUBELET_CLIENT_KEY=kube-apiserver-kubelet-client-key.pem
       - REQUESTHEADER_CLIENT_CA_FILE=k8s-front-proxy-ca.pem
       - PROXY_CLIENT_CERT_FILE=front-proxy-client.pem
       - PROXY_CLIENT_KEY_FILE=front-proxy-client-key.pem
     container_name: kube-apiserver
     ports:
       - "6443:6443"
-      - "10257:10257"
+      # - "10257:10257"
     volumes:
       - ${etcd_pki_dir}:/root/pki/etcd
       - ${k8s_pki_dir}:/root/pki/k8s
@@ -186,7 +186,7 @@ services:
 
 
   kube-controller-manager:
-    # restart: always
+    restart: always
     image: konomo/k8s/kube-controller-manager:v1
     environment:
       - CLUSTER_NAME=kubernetes
@@ -199,13 +199,13 @@ services:
       - CLIENT_CA_FILE=k8s-ca.pem
       - CLUSTER_SIGNING_CERT_FILE=k8s-ca.pem
       - CLUSTER_SIGNING_KEY_FILE=k8s-ca-key.pem
-      - TLS_CERT_FILE=kube-apiserver-client.pem
-      - TLS_PRIVATE_KEY_FILE=kube-apiserver-client-key.pem
+      - TLS_CERT_FILE=kube-controller-manager.pem
+      - TLS_PRIVATE_KEY_FILE=kube-controller-manager-key.pem
       - ROOT_CA_FILE=k8s-ca.pem
       - SERVICE_ACCOUNT_PRIVATE_KEY_FILE=k8s-ca-key.pem
-      - AUTHENTICATION_KUBECONFIG=kubeconfig
-      - AUTHORIZATION_KUBECONFIG=kubeconfig
-      - KUBECONFIG=kubeconfig
+      - AUTHENTICATION_KUBECONFIG=kube-controller-manager.kubeconfig
+      - AUTHORIZATION_KUBECONFIG=kube-controller-manager.kubeconfig
+      - KUBECONFIG=kube-controller-manager.kubeconfig
     container_name: kube-controller-manager
     # ports:
     #   - "10257:10257"
@@ -216,6 +216,29 @@ services:
     #   - mynet
     network_mode: "service:kube-apiserver"
     depends_on:
-      - etcdkeeper
+      - kube-apiserver
     entrypoint:
       - /root/kube-controller-manager_entrypoint.sh
+
+
+  kube-scheduler:
+    restart: always
+    image: konomo/k8s/kube-scheduler:v1
+    environment:
+      - BIND_ADDRESS=0.0.0.0
+      - SECURE_PORT=10259
+      - MASTER=https://kube-apiserver:6443
+      - TLS_CERT_FILE=kube-scheduler.pem
+      - TLS_PRIVATE_KEY_FILE=kube-scheduler-key.pem
+      - AUTHENTICATION_KUBECONFIG=kube-scheduler.kubeconfig
+      - AUTHORIZATION_KUBECONFIG=kube-scheduler.kubeconfig
+      - KUBECONFIG=kube-scheduler.kubeconfig
+    container_name: kube-scheduler
+    volumes:
+      - ${k8s_pki_dir}:/root/pki/k8s
+      - /etc/localtime:/etc/localtime:ro
+    network_mode: "service:kube-apiserver"
+    depends_on:
+      - kube-apiserver
+    entrypoint:
+      - /root/kube-scheduler_entrypoint.sh

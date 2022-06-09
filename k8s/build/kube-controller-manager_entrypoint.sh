@@ -11,19 +11,18 @@ K8S_PKI_DIR=/root/pki/k8s
 # - CLIENT_CA_FILE=k8s-ca.pem
 # - CLUSTER_SIGNING_CERT_FILE=k8s-ca.pem
 # - CLUSTER_SIGNING_KEY_FILE=k8s-ca-key.pem
-# - TLS_CERT_FILE=kube-apiserver-client.pem
-# - TLS_PRIVATE_KEY_FILE=kube-apiserver-client-key.pem
+# - TLS_CERT_FILE=kube-controller-manager.pem
+# - TLS_PRIVATE_KEY_FILE=kube-controller-manager-key.pem
 # - ROOT_CA_FILE=k8s-ca.pem
 # - SERVICE_ACCOUNT_PRIVATE_KEY_FILE=k8s-ca-key.pem
-# - AUTHENTICATION_KUBECONFIG=kubeconfig
-# - AUTHORIZATION_KUBECONFIG=kubeconfig
-# - KUBECONFIG=kubeconfig
-
+# - AUTHENTICATION_KUBECONFIG=kube-controller-manager.kubeconfig
+# - AUTHORIZATION_KUBECONFIG=kube-controller-manager.kubeconfig
+# - KUBECONFIG=kube-controller-manager.kubeconfig
 
 /root/kube-controller-manager \
 --leader-elect=true \
 --v=2 \
---experimental-cluster-signing-duration=876000h \
+--cluster-signing-duration=876000h \
 --use-service-account-credentials \
 --controllers=*,bootstrapsigner,tokencleaner \
 --requestheader-allowed-names="" \
