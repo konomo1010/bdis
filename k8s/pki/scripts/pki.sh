@@ -1,6 +1,7 @@
 #!/bin/bash
 export PKI_DIR=../files
 export K8S_BIN_DIR=../../build/packages/kubernetes/server/bin
+export MANIFEST_DIR=../../manifest
 
 source func/kubeconfig_gen.sh
 
