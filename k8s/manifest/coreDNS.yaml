@@ -26,8 +26,8 @@ rules:
     resources:
     - endpointslices
     verbs:
-    - list
-    - watch
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -196,4 +196,3 @@ spec:
   - name: metrics
     port: 9153
     protocol: TCP
-EOF
