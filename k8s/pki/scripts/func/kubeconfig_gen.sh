@@ -1,6 +1,4 @@
- 
-PKI_DIR=../files
-K8S_BIN_DIR=../../build/packages/kubernetes/server/bin
+#!/bin/bash
 
 function kubeconfig() {
     CERT_NAME=$1
@@ -35,29 +33,4 @@ function kubeconfig() {
 
 }
 
-if [ ! -d ~/.kube ];then
-    mkdir ~/.kube
-fi
 
-echo "====> create cluster-admin.kubeconfig"
-kubeconfig cluster-admin kubernetes clusterAdmin cluster-admin.kubeconfig localk8
-echo ""
-
-echo "====> create kube-controller-manager.kubeconfig"
-kubeconfig kube-controller-manager kubernetes default-controller-manager kube-controller-manager.kubeconfig kube-controller-manager
-echo ""
-
-echo "====> create kube-scheduler.kubeconfig"
-kubeconfig kube-scheduler kubernetes default-scheduler kube-scheduler.kubeconfig kube-scheduler
-echo ""
-
-echo "====> create kube-proxy.kubeconfig"
-kubeconfig kube-proxy kubernetes default-proxy kube-proxy.kubeconfig kube-proxy
-echo ""
-
-
-echo "====> create kubelet.kubeconfig"
-kubeconfig kubelet kubernetes kubelet kubelet.kubeconfig kubelet
-echo ""
-
-cp -f ${PKI_DIR}/cluster-admin.kubeconfig ~/.kube/config

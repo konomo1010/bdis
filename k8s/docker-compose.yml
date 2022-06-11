@@ -176,7 +176,9 @@ services:
     networks:
       - mynet
     depends_on:
-      - etcdkeeper
+      - etcd-01
+      - etcd-02
+      - etcd-03
     entrypoint:
       - /root/kube-apiserver_entrypoint.sh
 
@@ -235,21 +237,21 @@ services:
 
 
 
-  kube-proxy:
-    # restart: always
-    image: konomo/k8s/kube-proxy:v1
-    environment:
-      - BIND_ADDRESS=0.0.0.0
-      - MASTER=https://kube-apiserver:6443
-      - HOSTNAME_OVERRIDE=master
-      - KUBECONFIG=kube-proxy.kubeconfig
-    container_name: kube-proxy
-    volumes:
-      - ${k8s_pki_dir}:/root/pki/k8s
-      - /etc/localtime:/etc/localtime:ro
-      - /:/rootfs:rw
-    network_mode: "host"
-    depends_on:
-      - kube-apiserver
-    entrypoint:
-      - /root/kube-proxy_entrypoint.sh
+  # kube-proxy:
+  #   # restart: always
+  #   image: konomo/k8s/kube-proxy:v1
+  #   environment:
+  #     - BIND_ADDRESS=0.0.0.0
+  #     - MASTER=https://kube-apiserver:6443
+  #     - HOSTNAME_OVERRIDE=master
+  #     - KUBECONFIG=kube-proxy.kubeconfig
+  #   container_name: kube-proxy
+  #   volumes:
+  #     - ${k8s_pki_dir}:/root/pki/k8s
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - /:/rootfs:rw
+  #   network_mode: "host"
+  #   depends_on:
+  #     - kube-apiserver
+  #   entrypoint:
+  #     - /root/kube-proxy_entrypoint.sh

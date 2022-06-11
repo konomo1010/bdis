@@ -1,13 +1,10 @@
-# https://kubernetes.io/zh/docs/reference/access-authn-authz/node/
-# https://kubernetes.io/zh/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/
-
-PKI_DIR=../files
-K8S_BIN_DIR=../../build/packages/kubernetes/server/bin
-
-
+#!/bin/bash
+echo "====> bootstrap-token.csv"
+echo "`openssl rand -hex 16`,kubelet-bootstrap,10001,"system:kubelet-bootstrap"" > ${PKI_DIR}/bootstrap-token.csv
+echo ""
 
 ${K8S_BIN_DIR}/kubectl config set-cluster bootstrap \
---server='https://127.0.0.1:6443' \
+--server='https://kube-apiserver:6443' \
 --certificate-authority=${PKI_DIR}/k8s-ca.pem \
 --embed-certs=true \
 --kubeconfig=${PKI_DIR}/bootstrap.kubeconfig

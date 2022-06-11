@@ -1,397 +1,52 @@
-filesSave=../files
+#!/bin/bash
+export PKI_DIR=../files
+export K8S_BIN_DIR=../../build/packages/kubernetes/server/bin
 
-if [ ! -d ${filesSave} ];then
-    mkdir -p ../files
+source func/kubeconfig_gen.sh
+
+if [ ! -d ${PKI_DIR} ];then
+    mkdir -p ../../files
 fi
 
-#############################################  CA  ##################################################
-cat > ${filesSave}/k8s-ca-config.json <<EOF
-{
-    "signing": {
-        "default": {
-            "expiry": "8760h"
-        },
-        "profiles": {
-            "kubernetes-ca": {
-                "expiry": "8760h",
-                "usages": [
-                    "signing",
-                    "key encipherment",
-                    "server auth",
-                    "client auth"
-                ]
-            },
-            
-            "kubernetes-ca-server": {
-                "expiry": "8760h",
-                "usages": [
-                    "signing",
-                    "key encipherment",
-                    "server auth"
-                ]
-            },
-            
-            "kubernetes-ca-client": {
-                "expiry": "8760h",
-                "usages": [
-                    "signing",
-                    "key encipherment",
-                    "client auth"
-                ]
-            }
-        }
-    }
-}
-EOF
-cat > ${filesSave}/k8s-ca-csr.json <<EOF
-{
-    "CN": "kubernetes-ca",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "O": "k8s",
-            "OU": "System"
-        }
-    ]
-}
-EOF
-cat > ${filesSave}/k8s-front-proxy-ca-config.json <<EOF
-{
-    "signing": {
-        "default": {
-            "expiry": "8760h"
-        },
-        "profiles": {
-            "kubernetes-front-proxy-ca": {
-                "expiry": "8760h",
-                "usages": [
-                    "signing",
-                    "key encipherment",
-                    "server auth",
-                    "client auth"
-                ]
-            },
-            "kubernetes-front-proxy-ca-server": {
-                "expiry": "8760h",
-                "usages": [
-                    "signing",
-                    "key encipherment",
-                    "server auth"
-                ]
-            },
-            "kubernetes-front-proxy-ca-client": {
-                "expiry": "8760h",
-                "usages": [
-                    "signing",
-                    "key encipherment",
-                    "client auth"
-                ]
-            }
-        }
-    }
-}
-EOF
-cat > ${filesSave}/k8s-front-proxy-ca-csr.json <<EOF
-{
-    "CN": "kubernetes-front-proxy-ca",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "O": "k8s",
-            "OU": "System"
-        }
-    ]
-}
-EOF
-
-################################################ Cert ###############################################
-
-cat > ${filesSave}/kube-apiserver-csr.json <<EOF
-{
-    "CN": "kube-apiserver",
-    "hosts": [
-      "10.1.0.1",
-      "127.0.0.1",
-      "192.168.1.101",
-      "192.168.2.11",
-      "kube-apiserver",
-      "kubernetes",
-      "kubernetes.default",
-      "kubernetes.default.svc",
-      "kubernetes.default.svc.cluster",
-      "kubernetes.default.svc.cluster.local"
-    ],
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "O": "k8s",
-            "OU": "System"
-        }
-    ]
-}
-EOF
-cat > ${filesSave}/kube-apiserver-kubelet-client-csr.json <<EOF
-{
-    "CN": "kube-apiserver-kubelet-client",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "O": "system:masters",
-            "OU": "System"
-        }
-    ]
-}
-EOF
+# echo "====> Create CAs"
+# . ./genCA.sh
 
 
-cat > ${filesSave}/kube-controller-manager-csr.json <<EOF
-{
-    "CN": "system:kube-controller-manager",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "OU": "System"
-        }
-    ]
-}
-EOF
+# . ./server/kube-apiserver.sh
+# . ./server/kube-controller-manager.sh
+# . ./server/kube-scheduler.sh
+# . ./node/kube-proxy.sh
+# . ./node/kubelet.sh
 
-cat > ${filesSave}/kube-scheduler-csr.json <<EOF
-{
-    "CN": "system:kube-scheduler",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "OU": "System"
-        }
-    ]
-}
-EOF
-
-
-cat > ${filesSave}/cluster-admin-csr.json <<EOF
-{
-    "CN": "kubernetes-admin",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "O": "system:masters",
-            "OU": "System"
-        }
-    ]
-}
-EOF
-
-
-cat > ${filesSave}/front-proxy-client-csr.json <<EOF
-{
-    "CN": "front-proxy-client",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "O": "k8s",
-            "OU": "System"
-        }
-    ]
-}
-EOF
-
-
-echo "====> k8s-ca"
-cfssl gencert -initca ${filesSave}/k8s-ca-csr.json | cfssljson -bare ${filesSave}/k8s-ca -
-echo ""
-
-echo "====> kube-apiserver"
-cfssl gencert \
--ca=${filesSave}/k8s-ca.pem \
--ca-key=${filesSave}/k8s-ca-key.pem \
--config=${filesSave}/k8s-ca-config.json \
--profile=kubernetes-ca-server \
-${filesSave}/kube-apiserver-csr.json | cfssljson -bare ${filesSave}/kube-apiserver - 
-echo ""
-
-echo "====> kube-apiserver-kubelet-client"
-cfssl gencert \
--ca=${filesSave}/k8s-ca.pem \
--ca-key=${filesSave}/k8s-ca-key.pem \
--config=${filesSave}/k8s-ca-config.json \
--profile=kubernetes-ca-client \
-${filesSave}/kube-apiserver-kubelet-client-csr.json | cfssljson -bare ${filesSave}/kube-apiserver-kubelet-client -
-echo ""
-
-echo "====> kube-controller-manager"
-cfssl gencert \
--ca=${filesSave}/k8s-ca.pem \
--ca-key=${filesSave}/k8s-ca-key.pem \
--config=${filesSave}/k8s-ca-config.json \
--profile=kubernetes-ca-client \
-${filesSave}/kube-controller-manager-csr.json | cfssljson -bare ${filesSave}/kube-controller-manager -
-echo ""
-
-echo "====> kube-scheduler"
-cfssl gencert \
--ca=${filesSave}/k8s-ca.pem \
--ca-key=${filesSave}/k8s-ca-key.pem \
--config=${filesSave}/k8s-ca-config.json \
--profile=kubernetes-ca-client \
-${filesSave}/kube-scheduler-csr.json | cfssljson -bare ${filesSave}/kube-scheduler -
-echo ""
-
-echo "====> cluster-admin"
-cfssl gencert \
--ca=${filesSave}/k8s-ca.pem \
--ca-key=${filesSave}/k8s-ca-key.pem \
--config=${filesSave}/k8s-ca-config.json \
--profile=kubernetes-ca-client \
-${filesSave}/cluster-admin-csr.json | cfssljson -bare ${filesSave}/cluster-admin -
-echo ""
+args=$1
+if [ ! -z $args ];then
+    case $args in 
+        all)
+        . ./genCA.sh
+        . ./server/kube-apiserver.sh
+        . ./server/kube-controller-manager.sh
+        . ./server/kube-scheduler.sh
+        . ./server/bootstrap.sh
+        . ./node/kube-proxy.sh
+        . ./node/kubelet.sh
+        . ./user/cluster-admin.sh
+        ;;
+        *)
+            script_file=$(find ./ -type f -name ${args}.sh)
+            if [  ! -z $script_file ];then
+                . $script_file
+            else
+                echo "$args.sh not found; nothing to do ; Bye-Bye"
+            fi
+        ;;
+    esac
+else
+    echo "nothing to do ; Bye-Bye"
+    exit
+fi
 
 
 
 
 
 
-cat > ${filesSave}/kube-proxy-csr.json <<EOF
-{
-    "CN": "system:kube-proxy",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "OU": "System"
-        }
-    ]
-}
-EOF
-
-
-echo "====> kube-proxy"
-cfssl gencert \
--ca=${filesSave}/k8s-ca.pem \
--ca-key=${filesSave}/k8s-ca-key.pem \
--config=${filesSave}/k8s-ca-config.json \
--profile=kubernetes-ca-client \
-${filesSave}/kube-proxy-csr.json | cfssljson -bare ${filesSave}/kube-proxy -
-echo ""
-
-
-
-
-cat > ${filesSave}/kubelet-csr.json <<EOF
-{
-    "CN": "system:node:master",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "L": "CD",
-            "ST": "SC",
-            "O": "system:nodes",
-            "OU": "System"
-        }
-    ]
-}
-EOF
-
-
-echo "====> kubelet"
-cfssl gencert \
--ca=${filesSave}/k8s-ca.pem \
--ca-key=${filesSave}/k8s-ca-key.pem \
--config=${filesSave}/k8s-ca-config.json \
--profile=kubernetes-ca-client \
-${filesSave}/kubelet-csr.json | cfssljson -bare ${filesSave}/kubelet -
-echo ""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-echo "====> k8s-front-proxy-ca"
-cfssl gencert -initca ${filesSave}/k8s-front-proxy-ca-csr.json | cfssljson -bare ${filesSave}/k8s-front-proxy-ca -
-echo ""
-
-echo "====> front-proxy-client"
-cfssl gencert \
--ca=${filesSave}/k8s-front-proxy-ca.pem \
--ca-key=${filesSave}/k8s-front-proxy-ca-key.pem \
--config=${filesSave}/k8s-front-proxy-ca-config.json \
--profile=kubernetes-front-proxy-ca-client \
-${filesSave}/front-proxy-client-csr.json | cfssljson -bare ${filesSave}/front-proxy-client -
-echo ""
-
-echo "====> bootstrap-token.csv"
-echo "`openssl rand -hex 16`,kubelet-bootstrap,10001,"system:kubelet-bootstrap"" > ${filesSave}/bootstrap-token.csv
-echo ""
-
-
-echo "====> kubeconfig"
-./genKubeconfig.sh
-echo ""

@@ -1,0 +1,19 @@
+
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/kubernetes/kubernetes
+After=containerd.service
+Requires=containerd.service
+ 
+[Service]
+ExecStart=/usr/local/bin/kubelet \
+--kubeconfig=/root/bdis/k8s/pki/files/kubelet_master.kubeconfig  \
+--config=/etc/kubernetes/kubelet-conf.yaml \
+--container-runtime=remote  \
+--runtime-request-timeout=15m  \
+--container-runtime-endpoint=unix:///run/containerd/containerd.sock  \
+--cgroup-driver=systemd \
+--node-labels=node.kubernetes.io/node=''
+ 
+[Install]
+WantedBy=multi-user.target
