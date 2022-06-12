@@ -10,7 +10,7 @@ authentication:
     cacheTTL: 2m0s
     enabled: true
   x509:
-    clientCAFile: /root/bdis/k8s/pki/files/k8s-ca.pem
+    clientCAFile: /etc/kubernetes/k8s-ca.pem
 authorization:
   mode: Webhook
   webhook:

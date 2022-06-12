@@ -9,16 +9,6 @@ if [ ! -d ${PKI_DIR} ];then
     mkdir -p ../../files
 fi
 
-# echo "====> Create CAs"
-# . ./genCA.sh
-
-
-# . ./server/kube-apiserver.sh
-# . ./server/kube-controller-manager.sh
-# . ./server/kube-scheduler.sh
-# . ./node/kube-proxy.sh
-# . ./node/kubelet.sh
-
 args=$1
 if [ ! -z $args ];then
     case $args in 
