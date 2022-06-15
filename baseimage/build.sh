@@ -1,14 +1,18 @@
 #!/bin/bash
-read -p "please enter [baseimage] : " arges
 
-case $arges in 
+case $1 in 
     "baseimage")
         echo "====> building baseimage docker image"
         docker build --rm --no-cache -t konomo/baseimage:v1 . -f baseimage.dockerfile
         echo ""
     ;;
+    "salt-ssh")
+        echo "====> building baseimage docker image"
+        docker build --rm --no-cache -t konomo/salt/salt-ssh:v1 . -f salt-ssh.dockerfile
+        echo ""
+    ;;
     *)
-        echo "nothing to do ; Bye-Bye"
+        echo "[baseimage|salt-ssh]; nothing to do ; Bye-Bye"
         exit
     ;;
 esac
