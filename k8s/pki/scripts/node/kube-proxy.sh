@@ -29,5 +29,20 @@ echo ""
 
 
 echo "====> create kube-proxy.kubeconfig"
-kubeconfig kube-proxy kubernetes default-proxy kube-proxy.kubeconfig kube-proxy
+CERT_NAME=kube-proxy
+CLUSTER_NAME=kubernetes
+USER=default-proxy
+KUBECONFIG_NAME=kube-proxy.kubeconfig
+CONTEXT_NAME=kube-proxy
+MASTER_ADDR=https://kubernetes.default.svc.cluster.local
+kubeconfig ${CERT_NAME} ${CLUSTER_NAME} ${USER} ${KUBECONFIG_NAME} ${CONTEXT_NAME} ${MASTER_ADDR}
 echo ""
+
+
+
+
+
+
+
+
+

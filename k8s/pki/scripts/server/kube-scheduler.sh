@@ -31,5 +31,12 @@ echo ""
 
 
 echo "====> create kube-scheduler kubeconfig"
-kubeconfig kube-scheduler kubernetes default-scheduler kube-scheduler.kubeconfig kube-scheduler
+# kubeconfig kube-scheduler kubernetes default-scheduler kube-scheduler.kubeconfig kube-scheduler
+CERT_NAME=kube-scheduler
+CLUSTER_NAME=kubernetes
+USER=default-scheduler
+KUBECONFIG_NAME=kube-scheduler.kubeconfig
+CONTEXT_NAME=kube-scheduler
+MASTER_ADDR=https://127.0.0.1:6443
+kubeconfig ${CERT_NAME} ${CLUSTER_NAME} ${USER} ${KUBECONFIG_NAME} ${CONTEXT_NAME} ${MASTER_ADDR}
 echo ""

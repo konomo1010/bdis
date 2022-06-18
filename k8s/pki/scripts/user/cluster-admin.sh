@@ -30,7 +30,14 @@ echo ""
 
 
 echo "====> create cluster-admin kubeconfig"
-kubeconfig cluster-admin kubernetes clusterAdmin cluster-admin.kubeconfig localk8
+# kubeconfig cluster-admin kubernetes clusterAdmin cluster-admin.kubeconfig localk8
+CERT_NAME=cluster-admin
+CLUSTER_NAME=kubernetes
+USER=clusterAdmin
+KUBECONFIG_NAME=cluster-admin.kubeconfig
+CONTEXT_NAME=localk8
+MASTER_ADDR=https://127.0.0.1:6443
+kubeconfig ${CERT_NAME} ${CLUSTER_NAME} ${USER} ${KUBECONFIG_NAME} ${CONTEXT_NAME} ${MASTER_ADDR}
 echo ""
 
 if [ ! -d ~/.kube ];then

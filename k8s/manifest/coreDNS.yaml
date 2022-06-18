@@ -59,7 +59,7 @@ data:
           lameduck 5s
         }
         ready
-        kubernetes cluster.local in-addr.arpa ip6.arpa {
+        kubernetes cluster.local 10.1.0.0/16 {
           fallthrough in-addr.arpa ip6.arpa
         }
         prometheus :9153
@@ -116,7 +116,7 @@ spec:
                topologyKey: kubernetes.io/hostname
       containers:
       - name: coredns
-        image: registry.cn-beijing.aliyuncs.com/dotbalo/coredns:1.8.6 
+        image: coredns/coredns:1.9.3
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -161,6 +161,10 @@ spec:
             path: /ready
             port: 8181
             scheme: HTTP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
       dnsPolicy: Default
       volumes:
         - name: config-volume

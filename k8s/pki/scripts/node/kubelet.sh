@@ -31,6 +31,13 @@ echo ""
 
 echo "====> create kubelet node:master kubeconfig"
 #CERT_NAME=$1 CLUSTER_NAME=$2 USER=$3 KUBECONFIG_NAME=$4 CONTEXT_NAME=$5
-kubeconfig kubelet_master kubernetes system:node:master kubelet_master.kubeconfig system:node:master
+#kubeconfig kubelet_master kubernetes system:node:master kubelet_master.kubeconfig system:node:master
+CERT_NAME=kubelet_master
+CLUSTER_NAME=kubernetes
+USER=system:node:master
+KUBECONFIG_NAME=kubelet_master.kubeconfig
+CONTEXT_NAME=system:node:master
+MASTER_ADDR=https://127.0.0.1:6443
+kubeconfig ${CERT_NAME} ${CLUSTER_NAME} ${USER} ${KUBECONFIG_NAME} ${CONTEXT_NAME} ${MASTER_ADDR}
 echo ""
 
