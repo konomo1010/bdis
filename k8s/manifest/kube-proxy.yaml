@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    k8s-app: kube-proxy-ds-x86-1.24.1
+  name: kube-proxy-ds-x86
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kube-proxy-ds-x86
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: kube-proxy-ds-x86
+    spec:
+      priorityClassName: system-node-critical
+      containers:
+      - name: kube-proxy
+        image: konomo/k8s/kube-proxy:v1.24.1
+        imagePullPolicy: IfNotPresent
+        command:
+        - /root/kube-proxy
+        - --config=/var/lib/kube-proxy/kube-proxy-config.yaml
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/kube-proxy
+          name: kube-proxy
+        - mountPath: /run/xtables.lock
+          name: xtables-lock
+          readOnly: false
+        - mountPath: /lib/modules
+          name: lib-modules
+          readOnly: true
+      hostNetwork: true
+      volumes:
+      - name: kube-proxy
+        configMap:
+          name: system-kube-proxy
+      - name: xtables-lock
+        hostPath:
+          path: /run/xtables.lock
+          type: FileOrCreate
+      - name: lib-modules
+        hostPath:
+          path: /lib/modules

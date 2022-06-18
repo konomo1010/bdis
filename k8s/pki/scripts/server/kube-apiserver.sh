@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "====> create kube-apiserver csr"
-cat > ${PKI_DIR}/kube-apiserver-csr.json <<EOF
+cat > ${PKI_FILES_DIR}/kube-apiserver-csr.json <<EOF
 {
     "CN": "kube-apiserver",
     "hosts": [
@@ -9,6 +9,7 @@ cat > ${PKI_DIR}/kube-apiserver-csr.json <<EOF
       "192.168.1.101",
       "192.168.2.11",
       "kube-apiserver",
+      "master.k8s.endpoint",
       "kubernetes",
       "kubernetes.default",
       "kubernetes.default.svc",
@@ -35,15 +36,15 @@ EOF
 
 echo "====> create kube-apiserver certificate"
 cfssl gencert \
--ca=${PKI_DIR}/k8s-ca.pem \
--ca-key=${PKI_DIR}/k8s-ca-key.pem \
--config=${PKI_DIR}/k8s-ca-config.json \
+-ca=${PKI_FILES_DIR}/k8s-ca.pem \
+-ca-key=${PKI_FILES_DIR}/k8s-ca-key.pem \
+-config=${PKI_FILES_DIR}/k8s-ca-config.json \
 -profile=kubernetes-ca-server \
-${PKI_DIR}/kube-apiserver-csr.json | cfssljson -bare ${PKI_DIR}/kube-apiserver - 
+${PKI_FILES_DIR}/kube-apiserver-csr.json | cfssljson -bare ${PKI_FILES_DIR}/kube-apiserver - 
 echo ""
 
 echo "====> create kube-apiserver-kubelet-client csr"
-cat > ${PKI_DIR}/kube-apiserver-kubelet-client-csr.json <<EOF
+cat > ${PKI_FILES_DIR}/kube-apiserver-kubelet-client-csr.json <<EOF
 {
     "CN": "kube-apiserver-kubelet-client",
     "key": {
@@ -65,9 +66,9 @@ EOF
 
 echo "====> create kube-apiserver-kubelet-client certificate"
 cfssl gencert \
--ca=${PKI_DIR}/k8s-ca.pem \
--ca-key=${PKI_DIR}/k8s-ca-key.pem \
--config=${PKI_DIR}/k8s-ca-config.json \
+-ca=${PKI_FILES_DIR}/k8s-ca.pem \
+-ca-key=${PKI_FILES_DIR}/k8s-ca-key.pem \
+-config=${PKI_FILES_DIR}/k8s-ca-config.json \
 -profile=kubernetes-ca-client \
-${PKI_DIR}/kube-apiserver-kubelet-client-csr.json | cfssljson -bare ${PKI_DIR}/kube-apiserver-kubelet-client -
+${PKI_FILES_DIR}/kube-apiserver-kubelet-client-csr.json | cfssljson -bare ${PKI_FILES_DIR}/kube-apiserver-kubelet-client -
 echo ""

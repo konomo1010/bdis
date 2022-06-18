@@ -1,26 +1,15 @@
 #!/bin/bash
-export PKI_DIR=../files
-export K8S_BIN_DIR=../../build/packages/kubernetes/server/bin
-export MANIFEST_DIR=../../manifest
-
-source func/kubeconfig_gen.sh
-
-if [ ! -d ${PKI_DIR} ];then
-    mkdir -p ../../files
-fi
-
 args=$1
 if [ ! -z $args ];then
     case $args in 
         all)
-        . ./genCA.sh
-        . ./server/kube-apiserver.sh
-        . ./server/kube-controller-manager.sh
-        . ./server/kube-scheduler.sh
-        . ./server/bootstrap.sh
-        . ./node/kube-proxy.sh
-        . ./node/kubelet.sh
-        . ./user/cluster-admin.sh
+        . ${PKI_SCRIPTS_DIR}/server/genCA.sh
+        . ${PKI_SCRIPTS_DIR}/server/kube-apiserver.sh
+        . ${PKI_SCRIPTS_DIR}/server/kube-controller-manager.sh
+        . ${PKI_SCRIPTS_DIR}/server/kube-scheduler.sh
+        . ${PKI_SCRIPTS_DIR}/server/bootstrap.sh
+        # . ${PKI_SCRIPTS_DIR}kube-proxy.sh
+        . ${PKI_SCRIPTS_DIR}/server/cluster-admin.sh
         ;;
         *)
             script_file=$(find ./ -type f -name ${args}.sh)

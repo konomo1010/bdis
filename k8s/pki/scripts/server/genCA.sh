@@ -1,11 +1,6 @@
-filesSave=../files
-
-if [ ! -d ${filesSave} ];then
-    mkdir -p ../files
-fi
 
 #############################################  CA  ##################################################
-cat > ${filesSave}/k8s-ca-config.json <<EOF
+cat > ${PKI_FILES_DIR}/k8s-ca-config.json <<EOF
 {
     "signing": {
         "default": {
@@ -43,7 +38,7 @@ cat > ${filesSave}/k8s-ca-config.json <<EOF
     }
 }
 EOF
-cat > ${filesSave}/k8s-ca-csr.json <<EOF
+cat > ${PKI_FILES_DIR}/k8s-ca-csr.json <<EOF
 {
     "CN": "kubernetes-ca",
     "key": {
@@ -61,7 +56,9 @@ cat > ${filesSave}/k8s-ca-csr.json <<EOF
     ]
 }
 EOF
-cat > ${filesSave}/k8s-front-proxy-ca-config.json <<EOF
+
+
+cat > ${PKI_FILES_DIR}/k8s-front-proxy-ca-config.json <<EOF
 {
     "signing": {
         "default": {
@@ -97,7 +94,7 @@ cat > ${filesSave}/k8s-front-proxy-ca-config.json <<EOF
     }
 }
 EOF
-cat > ${filesSave}/k8s-front-proxy-ca-csr.json <<EOF
+cat > ${PKI_FILES_DIR}/k8s-front-proxy-ca-csr.json <<EOF
 {
     "CN": "kubernetes-front-proxy-ca",
     "key": {
@@ -116,19 +113,19 @@ cat > ${filesSave}/k8s-front-proxy-ca-csr.json <<EOF
 }
 EOF
 
+
 ################################################ Cert ###############################################
 echo "====> k8s-ca"
-cfssl gencert -initca ${filesSave}/k8s-ca-csr.json | cfssljson -bare ${filesSave}/k8s-ca -
+cfssl gencert -initca ${PKI_FILES_DIR}/k8s-ca-csr.json | cfssljson -bare ${PKI_FILES_DIR}/k8s-ca -
 echo ""
 
 echo "====> k8s-front-proxy-ca"
-cfssl gencert -initca ${filesSave}/k8s-front-proxy-ca-csr.json | cfssljson -bare ${filesSave}/k8s-front-proxy-ca -
+cfssl gencert -initca ${PKI_FILES_DIR}/k8s-front-proxy-ca-csr.json | cfssljson -bare ${PKI_FILES_DIR}/k8s-front-proxy-ca -
 echo ""
-
 
 ################################### 
 
-cat > ${filesSave}/front-proxy-client-csr.json <<EOF
+cat > ${PKI_FILES_DIR}/front-proxy-client-csr.json <<EOF
 {
     "CN": "front-proxy-client",
     "key": {
@@ -147,11 +144,13 @@ cat > ${filesSave}/front-proxy-client-csr.json <<EOF
 }
 EOF
 
+
+
 echo "====> front-proxy-client"
 cfssl gencert \
--ca=${filesSave}/k8s-front-proxy-ca.pem \
--ca-key=${filesSave}/k8s-front-proxy-ca-key.pem \
--config=${filesSave}/k8s-front-proxy-ca-config.json \
+-ca=${PKI_FILES_DIR}/k8s-front-proxy-ca.pem \
+-ca-key=${PKI_FILES_DIR}/k8s-front-proxy-ca-key.pem \
+-config=${PKI_FILES_DIR}/k8s-front-proxy-ca-config.json \
 -profile=kubernetes-front-proxy-ca-client \
-${filesSave}/front-proxy-client-csr.json | cfssljson -bare ${filesSave}/front-proxy-client -
+${PKI_FILES_DIR}/front-proxy-client-csr.json | cfssljson -bare ${PKI_FILES_DIR}/front-proxy-client -
 echo ""

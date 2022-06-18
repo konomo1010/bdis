@@ -9,7 +9,7 @@ export TARGET_DIR=/etc/kubernetes
 export PKI_DIR=./pki/files
 export PACKAGE_DIR=./build/packages
 export K8S_BIN_DIR=${PACKAGE_DIR}/kubernetes/server/bin
-export MANIFEST_DIR=./manifest
+export MANIFEST_DIR=./manifest/node
 
 
 
@@ -108,6 +108,7 @@ if [[ ! -z $USER && ! -z $HOST && ! -z $PASSWD ]];then
     ssh ${USER}@${HOST} "cd ${NODE_WORK_DIR}&&tar xfzv ${NODE_WORK_DIR}/$containerd_PKG_NAME --no-overwrite-dir -C /"
     scp ${MANIFEST_DIR}/config.toml ${USER}@${HOST}:/etc/containerd/config.toml
     ssh ${USER}@${HOST} "systemctl daemon-reload && systemctl enable containerd  && systemctl restart containerd"
+
 
     ############################################ node 节点初始化
     # hostname, 时区，时间同步， hosts解析

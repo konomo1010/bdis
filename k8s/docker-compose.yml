@@ -144,28 +144,10 @@ services:
 
   kube-apiserver:
     restart: always
-    image: konomo/k8s/kube-apiserver:v1
-    environment:
-      - BIND_ADDRESS=0.0.0.0
-      - ADVERTISE_ADDRESS=0.0.0.0
-      - SECURE_PORT=6443
-      - SERVICE_CLUSTER_IP_RANGE=10.1.0.0/16
-      - ETCD_SERVERS=https://etcd-01:2379,https://etcd-02:2379,https://etcd-03:2379
-      - TOKEN_AUTH_FILE=bootstrap-token.csv
-      - ETCD_CAFILE=etcd-ca.pem
-      - ETCD_CERTFILE=kube-apiserver-etcd-client.pem
-      - ETCD_KEYFILE=kube-apiserver-etcd-client-key.pem
-      - CLIENT_CA_FILE=k8s-ca.pem
-      - SERVICE_ACCOUNT_KEY_FILE=k8s-ca-key.pem
-      - SERVICE_ACCOUNT_SIGNING_KEY_FILE=k8s-ca-key.pem
-      - SERVICE_ACCOUNT_ISSUER=api
-      - TLS_CERT_FILE=kube-apiserver.pem
-      - TLS_PRIVATE_KEY_FILE=kube-apiserver-key.pem
-      - KUBELET_CLIENT_CERTIFICATE=kube-apiserver-kubelet-client.pem
-      - KUBELET_CLIENT_KEY=kube-apiserver-kubelet-client-key.pem
-      - REQUESTHEADER_CLIENT_CA_FILE=k8s-front-proxy-ca.pem
-      - PROXY_CLIENT_CERT_FILE=front-proxy-client.pem
-      - PROXY_CLIENT_KEY_FILE=front-proxy-client-key.pem
+    image: konomo/k8s/kube-apiserver:v1.24.1
+    # environment:
+    #   - K8S_PKI_DIR=/root/pki/k8s
+    #   - ETCD_PKI_DIR=/root/pki/etcd
     container_name: kube-apiserver
     ports:
       - "6443:6443"
@@ -180,29 +162,46 @@ services:
       - etcd-02
       - etcd-03
     entrypoint:
-      - /root/kube-apiserver_entrypoint.sh
+      - /root/wait-for-it.sh
+      - -t
+      - '0'
+      - etcd-01:2379
+      - --
+      - /root/kube-apiserver
+      - --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,NodeRestriction
+      - --allow-privileged=true
+      - --v=2 
+      - --service-node-port-range=1-65500 
+      - --authorization-mode=Node,RBAC 
+      - --anonymous-auth=false 
+      - --enable-bootstrap-token-auth 
+      - --bind-address=0.0.0.0
+      - --advertise-address=0.0.0.0
+      - --secure-port=6443
+      - --service-cluster-ip-range=10.1.0.0/16
+      - --token-auth-file=/root/pki/k8s/bootstrap-token.csv
+      - --etcd-servers=https://etcd-01:2379,https://etcd-02:2379,https://etcd-03:2379
+      - --etcd-cafile=/root/pki/etcd/etcd-ca.pem
+      - --etcd-certfile=/root/pki/etcd/kube-apiserver-etcd-client.pem
+      - --etcd-keyfile=/root/pki/etcd/kube-apiserver-etcd-client-key.pem
+      - --client-ca-file=/root/pki/k8s/k8s-ca.pem
+      - --service-account-key-file=/root/pki/k8s/k8s-ca-key.pem
+      - --service-account-signing-key-file=/root/pki/k8s/k8s-ca-key.pem
+      - --service-account-issuer=api
+      - --tls-cert-file=/root/pki/k8s/kube-apiserver.pem
+      - --tls-private-key-file=/root/pki/k8s/kube-apiserver-key.pem
+      - --kubelet-client-certificate=/root/pki/k8s/kube-apiserver-kubelet-client.pem
+      - --kubelet-client-key=/root/pki/k8s/kube-apiserver-kubelet-client-key.pem
+      - --requestheader-client-ca-file=/root/pki/k8s/k8s-front-proxy-ca.pem
+      - --proxy-client-cert-file=/root/pki/k8s/front-proxy-client.pem
+      - --proxy-client-key-file=/root/pki/k8s/front-proxy-client-key.pem
+
 
   kube-controller-manager:
     restart: always
-    image: konomo/k8s/kube-controller-manager:v1
-    environment:
-      - CLUSTER_NAME=kubernetes
-      - BIND_ADDRESS=0.0.0.0
-      - SECURE_PORT=10257
-      - MASTER=https://kube-apiserver:6443
-      - SERVICE_CLUSTER_IP_RANGE=10.1.0.0/16
-      - CLUSTER_CIDR=10.1.0.0/16
-      - REQUESTHEADER_CLIENT_CA_FILE=k8s-ca.pem
-      - CLIENT_CA_FILE=k8s-ca.pem
-      - CLUSTER_SIGNING_CERT_FILE=k8s-ca.pem
-      - CLUSTER_SIGNING_KEY_FILE=k8s-ca-key.pem
-      - TLS_CERT_FILE=kube-controller-manager.pem
-      - TLS_PRIVATE_KEY_FILE=kube-controller-manager-key.pem
-      - ROOT_CA_FILE=k8s-ca.pem
-      - SERVICE_ACCOUNT_PRIVATE_KEY_FILE=k8s-ca-key.pem
-      - AUTHENTICATION_KUBECONFIG=kube-controller-manager.kubeconfig
-      - AUTHORIZATION_KUBECONFIG=kube-controller-manager.kubeconfig
-      - KUBECONFIG=kube-controller-manager.kubeconfig
+    image: konomo/k8s/kube-controller-manager:v1.24.1
+    # environment:
+    #   - K8S_PKI_DIR=/root/pki/k8s
     container_name: kube-controller-manager
     volumes:
       - ${k8s_pki_dir}:/root/pki/k8s
@@ -211,20 +210,45 @@ services:
     depends_on:
       - kube-apiserver
     entrypoint:
-      - /root/kube-controller-manager_entrypoint.sh
+      - /root/wait-for-it.sh
+      - -t
+      - '0'
+      - kube-apiserver:6443
+      - --
+      - /root/kube-controller-manager
+      - --leader-elect=true
+      - --v=2
+      - --cluster-signing-duration=876000h
+      - --use-service-account-credentials
+      - --controllers=*,bootstrapsigner,tokencleaner
+      # - --requestheader-allowed-names=""
+      - --requestheader-extra-headers-prefix="X-Remote-Extra-"
+      - --requestheader-group-headers=X-Remote-Group
+      - --requestheader-username-headers=X-Remote-User
+      - --cluster-name=kubernetes
+      - --bind-address=0.0.0.0
+      - --secure-port=10257
+      - --master=https://kube-apiserver:6443
+      - --service-cluster-ip-range=10.1.0.0/16
+      - --cluster-cidr=10.1.0.0/16
+      - --requestheader-client-ca-file=/root/pki/k8s/k8s-ca.pem
+      - --client-ca-file=/root/pki/k8s/k8s-ca.pem
+      - --cluster-signing-cert-file=/root/pki/k8s/k8s-ca.pem
+      - --cluster-signing-key-file=/root/pki/k8s/k8s-ca-key.pem
+      - --tls-cert-file=/root/pki/k8s/kube-controller-manager.pem
+      - --tls-private-key-file=/root/pki/k8s/kube-controller-manager-key.pem
+      - --root-ca-file=/root/pki/k8s/k8s-ca.pem
+      - --service-account-private-key-file=/root/pki/k8s/k8s-ca-key.pem
+      - --authentication-kubeconfig=/root/pki/k8s/kube-controller-manager.kubeconfig
+      - --authorization-kubeconfig=/root/pki/k8s/kube-controller-manager.kubeconfig
+      - --kubeconfig=/root/pki/k8s/kube-controller-manager.kubeconfig
+
 
   kube-scheduler:
     restart: always
-    image: konomo/k8s/kube-scheduler:v1
-    environment:
-      - BIND_ADDRESS=0.0.0.0
-      - SECURE_PORT=10259
-      - MASTER=https://kube-apiserver:6443
-      - TLS_CERT_FILE=kube-scheduler.pem
-      - TLS_PRIVATE_KEY_FILE=kube-scheduler-key.pem
-      - AUTHENTICATION_KUBECONFIG=kube-scheduler.kubeconfig
-      - AUTHORIZATION_KUBECONFIG=kube-scheduler.kubeconfig
-      - KUBECONFIG=kube-scheduler.kubeconfig
+    image: konomo/k8s/kube-scheduler:v1.24.1
+    # environment:
+    #   - K8S_PKI_DIR=/root/pki/k8s
     container_name: kube-scheduler
     volumes:
       - ${k8s_pki_dir}:/root/pki/k8s
@@ -233,25 +257,19 @@ services:
     depends_on:
       - kube-apiserver
     entrypoint:
-      - /root/kube-scheduler_entrypoint.sh
-
-
-
-  # kube-proxy:
-  #   # restart: always
-  #   image: konomo/k8s/kube-proxy:v1
-  #   environment:
-  #     - BIND_ADDRESS=0.0.0.0
-  #     - MASTER=https://kube-apiserver:6443
-  #     - HOSTNAME_OVERRIDE=master
-  #     - KUBECONFIG=kube-proxy.kubeconfig
-  #   container_name: kube-proxy
-  #   volumes:
-  #     - ${k8s_pki_dir}:/root/pki/k8s
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - /:/rootfs:rw
-  #   network_mode: "host"
-  #   depends_on:
-  #     - kube-apiserver
-  #   entrypoint:
-  #     - /root/kube-proxy_entrypoint.sh
+      - /root/wait-for-it.sh
+      - -t
+      - '0'
+      - kube-apiserver:6443
+      - --
+      - /root/kube-scheduler
+      - --v=2
+      - --leader-elect=true
+      - --bind-address=0.0.0.0
+      - --secure-port=10259
+      - --master=https://kube-apiserver:6443
+      - --tls-cert-file=/root/pki/k8s/kube-scheduler.pem
+      - --tls-private-key-file=/root/pki/k8s/kube-scheduler-key.pem
+      - --authentication-kubeconfig=/root/pki/k8s/kube-scheduler.kubeconfig
+      - --authorization-kubeconfig=/root/pki/k8s/kube-scheduler.kubeconfig
+      - --kubeconfig=/root/pki/k8s/kube-scheduler.kubeconfig

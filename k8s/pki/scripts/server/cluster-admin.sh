@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "====> create cluster-admin csr"
-cat > ${PKI_DIR}/cluster-admin-csr.json <<EOF
+cat > ${PKI_FILES_DIR}/cluster-admin-csr.json <<EOF
 {
     "CN": "kubernetes-admin",
     "key": {
@@ -21,11 +21,11 @@ EOF
 
 echo "====> create cluster-admin certificate"
 cfssl gencert \
--ca=${PKI_DIR}/k8s-ca.pem \
--ca-key=${PKI_DIR}/k8s-ca-key.pem \
--config=${PKI_DIR}/k8s-ca-config.json \
+-ca=${PKI_FILES_DIR}/k8s-ca.pem \
+-ca-key=${PKI_FILES_DIR}/k8s-ca-key.pem \
+-config=${PKI_FILES_DIR}/k8s-ca-config.json \
 -profile=kubernetes-ca-client \
-${PKI_DIR}/cluster-admin-csr.json | cfssljson -bare ${PKI_DIR}/cluster-admin -
+${PKI_FILES_DIR}/cluster-admin-csr.json | cfssljson -bare ${PKI_FILES_DIR}/cluster-admin -
 echo ""
 
 
@@ -44,4 +44,5 @@ if [ ! -d ~/.kube ];then
     mkdir ~/.kube
 fi
 
-cp -f ${PKI_DIR}/cluster-admin.kubeconfig ~/.kube/config
+echo "copy cluster-admin.kubeconfig    ~/.kube/config "
+cp -f ${PKI_FILES_DIR}/cluster-admin.kubeconfig ~/.kube/config
