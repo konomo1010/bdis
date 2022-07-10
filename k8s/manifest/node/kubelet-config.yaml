@@ -17,7 +17,7 @@ authorization:
   webhook:
     cacheAuthorizedTTL: 5m0s
     cacheUnauthorizedTTL: 30s
-cgroupDriver: systemd
+# cgroupDriver: systemd
 cgroupsPerQOS: true
 clusterDNS:
 - 10.1.0.2

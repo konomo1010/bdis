@@ -37,8 +37,7 @@ echo $DIR
 cd ${ETCD_BUILD_DIR}
 . build.sh
 cd ${DIR}
-cd ${ETCD_PKI_DIR}/scripts
-. pki.sh
+
 
 
 ### 构建 k8s 组件
@@ -47,6 +46,9 @@ cd ${K8S_DOCKER_BUILD_DIR}
 . build.sh all
 
 # 创建证书
+cd ${ETCD_PKI_DIR}/scripts
+. pki.sh
+
 cd $DIR
 . ${PKI_SCRIPTS_DIR}/clear.sh
 . ${PKI_SCRIPTS_DIR}/pki.sh all

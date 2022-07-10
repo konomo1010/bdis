@@ -101,8 +101,8 @@ spec:
       tolerations:
         - key: "CriticalAddonsOnly"
           operator: "Exists"
-      nodeSelector:
-        node-role.kubernetes.io/master: master
+      # nodeSelector:
+      #   node-role.kubernetes.io/master: master
       affinity:
          podAntiAffinity:
            preferredDuringSchedulingIgnoredDuringExecution:
