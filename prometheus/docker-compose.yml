@@ -1,0 +1,54 @@
+version: '3'
+networks:
+  prometheus-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.11.0/24"  # 需根据实际网络环境规划
+
+
+
+services:
+  dtool:
+    image: konomo/baseimage:v1
+    networks:
+      - prometheus-network
+    entrypoint: tail -f /dev/null
+    extra_hosts:
+      - "node_exporter:192.168.1.101"
+  prometheus:
+    # restart: always
+    image: bitnami/prometheus
+    container_name: prometheus
+    networks:
+      prometheus-network:
+        ipv4_address: 172.16.11.10
+    ports:
+      - "9090:9090"
+    volumes:
+      - ${prometheus_config_file}:/opt/bitnami/prometheus/conf/prometheus.yml
+      - ${prometheus_data_dir}:/opt/bitnami/prometheus/data
+    extra_hosts:
+      - "node_exporter:192.168.1.101"
+
+  grafana:
+    # restart: always
+    image: grafana/grafana
+    container_name: grafana 
+    networks:
+      prometheus-network:
+        ipv4_address: 172.16.11.20
+    ports:
+      - "3000:3000"
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
