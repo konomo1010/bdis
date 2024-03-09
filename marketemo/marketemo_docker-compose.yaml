@@ -1,0 +1,63 @@
+version: '3.0'
+networks:
+  base-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.10.0/24"  # 需根据实际网络环境规划
+  # mysql_base-network:
+  #   external: true
+
+services:
+  debug:
+    restart: always
+    image: alpine
+    command: tail -f /dev/null
+    networks:
+      base-network:
+        ipv4_address: 172.16.10.10
+
+  mysql:
+    restart: always
+    image: mysql:5.7.43 # 8.0.0 8.1.0
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      base-network:
+        ipv4_address: 172.16.10.11
+    ports:
+      - "3310:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+    volumes:
+      - ${mysql_data_dir}:/var/lib/mysql
+
+  nginx:
+    restart: always
+    image: nginx
+    command: 
+    networks:
+      base-network:
+        ipv4_address: 172.16.10.12
+    ports:
+      - "80:80"
+    volumes:
+      - ${dist_dir}:/usr/share/nginx/html
+      - ${default_config_file}:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - mysql
+
+
+  marketemo:
+    restart: always
+    image: marketemo
+    command: 
+    networks:
+      base-network:
+        ipv4_address: 172.16.10.13
+    volumes:
+      - ${marketemo_config_file}:/root/app/application.yaml
+    depends_on:
+      - mysql
+
+
