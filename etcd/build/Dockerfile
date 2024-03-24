@@ -1,4 +1,4 @@
-FROM konomo/baseimage:v1
+FROM swr.cn-north-4.myhuaweicloud.com/wenxl/baseimage:v1
 ADD ./packages/etcd-v3.5.4-linux-amd64.tar.gz /root/
 COPY entrypoint.sh /root/
 COPY etcd-conf.yaml /root/conf/

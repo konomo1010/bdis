@@ -1,4 +1,4 @@
-FROM konomo/baseimage:v1
+FROM swr.cn-north-4.myhuaweicloud.com/wenxl/baseimage:v1
 ADD ./packages/kubernetes/server/bin/kube-scheduler /root/
 ADD wait-for-it.sh /root/
 WORKDIR /root

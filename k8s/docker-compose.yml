@@ -9,7 +9,7 @@ networks:
 services:
   etcd-01:
     restart: always
-    image: konomo/etcd/etcd:v1
+    image: swr.cn-north-4.myhuaweicloud.com/wenxl/etcd:v1
     container_name: etcd-01
     environment:
       - NAME=etcd-01
@@ -46,7 +46,7 @@ services:
 
   etcdkeeper:
     restart: always
-    image: konomo/etcd/etcdkeeper:v1
+    image: swr.cn-north-4.myhuaweicloud.com/wenxl/etcdkeeper:v1
     environment:
       - ETCDKEEPER_USETLS=true
       - ETCDKEEPER_CACERT=etcd-ca.pem 
@@ -68,7 +68,7 @@ services:
 
   kube-apiserver:
     restart: always
-    image: konomo/k8s/kube-apiserver:v1.24.1
+    image: swr.cn-north-4.myhuaweicloud.com/wenxl/kube-apiserver:v1.24.1
     # environment:
     #   - K8S_PKI_DIR=/root/pki/k8s
     #   - ETCD_PKI_DIR=/root/pki/etcd
@@ -118,10 +118,9 @@ services:
       - --proxy-client-cert-file=/root/pki/k8s/front-proxy-client.pem
       - --proxy-client-key-file=/root/pki/k8s/front-proxy-client-key.pem
 
-
   kube-controller-manager:
     restart: always
-    image: konomo/k8s/kube-controller-manager:v1.24.1
+    image: swr.cn-north-4.myhuaweicloud.com/wenxl/kube-controller-manager:v1.24.1
     # environment:
     #   - K8S_PKI_DIR=/root/pki/k8s
     container_name: kube-controller-manager
@@ -165,10 +164,9 @@ services:
       - --authorization-kubeconfig=/root/pki/k8s/kube-controller-manager.kubeconfig
       - --kubeconfig=/root/pki/k8s/kube-controller-manager.kubeconfig
 
-
   kube-scheduler:
     restart: always
-    image: konomo/k8s/kube-scheduler:v1.24.1
+    image: swr.cn-north-4.myhuaweicloud.com/wenxl/kube-scheduler:v1.24.1
     # environment:
     #   - K8S_PKI_DIR=/root/pki/k8s
     container_name: kube-scheduler

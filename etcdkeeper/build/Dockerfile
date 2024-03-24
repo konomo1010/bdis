@@ -1,4 +1,4 @@
-FROM konomo/baseimage:v1
+FROM swr.cn-north-4.myhuaweicloud.com/wenxl/baseimage:v1
 ADD ./packages/etcdkeeper-v0.7.6-linux_x86_64.zip /root/
 ADD ./entrypoint.sh /root/entrypoint.sh
 RUN mkdir /root/pki

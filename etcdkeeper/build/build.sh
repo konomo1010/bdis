@@ -1,7 +1,7 @@
 package_dir=./packages
 download_url=https://github.com/evildecay/etcdkeeper/releases/download/v0.7.6/etcdkeeper-v0.7.6-linux_x86_64.zip
 package_name=etcdkeeper-v0.7.6-linux_x86_64.zip
-
+docker_registry=swr.cn-north-4.myhuaweicloud.com/wenxl
 if [ ! -d ${package_dir} ];then
     mkdir -p ${package_dir}
 fi
@@ -10,7 +10,7 @@ if [ ! -e ${package_dir}/${package_name} ];then
     wget -P ${package_dir} ${download_url}
 fi
 
-docker build --rm --no-cache -t konomo/etcd/etcdkeeper:v1 . -f Dockerfile
+docker build --rm --no-cache -t ${docker_registry}/etcdkeeper:v1 . -f Dockerfile
 
 
 # 清理 dangling image

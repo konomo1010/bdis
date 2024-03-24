@@ -2,6 +2,7 @@
 package_dir=./packages
 download_url=https://dl.k8s.io/v1.24.1/kubernetes-server-linux-amd64.tar.gz
 package_name=kubernetes-server-linux-amd64.tar.gz
+docker_registry=swr.cn-north-4.myhuaweicloud.com/wenxl
 
 if [ ! -d ${package_dir} ];then
     mkdir -p ${package_dir}
@@ -20,7 +21,7 @@ function dockerbuild() {
     imageVersion=$3
     
 
-    docker build --rm --no-cache -t konomo/k8s/${imageName}:${imageVersion} . -f ${dockerfile}
+    docker build --rm --no-cache -t ${docker_registry}/${imageName}:${imageVersion} . -f ${dockerfile}
 }
 
 

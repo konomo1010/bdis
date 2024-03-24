@@ -12,6 +12,8 @@ export ETCD_PKI_DIR=../etcd/pki
 
 export K8S_DOCKER_BUILD_DIR=./build
 
+
+
 source ${PKI_SCRIPTS_DIR}/func/kubeconfig_gen.sh
 
 if [ ! -d ${PKI_FILES_DIR} ];then
@@ -23,26 +25,22 @@ fi
 #### docker
 #### docker-compose
 #### cfssl cfssljson
-#### kubectl
-
-# 创建证书
-cd ${ETCD_PKI_DIR}/scripts
-. clear.sh
-. pki.sh
-
-cd $DIR
-. ${PKI_SCRIPTS_DIR}/clear.sh
-. ${PKI_SCRIPTS_DIR}/pki.sh all
-
-# 启动 master 三大组件
-# docker-compose .env 文件
-# mkdir /data/etcd-0{1..3} -p
 
 
-# docker-compose up -d
+################### 构建 docker 镜像
+### 构建 baseimage
+cd ${DOCKERIMAGE_BUILD_DIR}
+. build.sh baseimage
 
-# 启动 kube-proxy
-# . ${PKI_SCRIPTS_DIR}/pki.sh kube-proxy
+### 构建 etcd
+echo $DIR
+cd ${ETCD_BUILD_DIR}
+. build.sh
+cd ${DIR}
 
-# node join
 
+
+### 构建 k8s 组件
+cd ${DIR}
+cd ${K8S_DOCKER_BUILD_DIR}
+. build.sh all
