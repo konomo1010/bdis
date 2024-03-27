@@ -7,7 +7,10 @@ function kubeconfig() {
     KUBECONFIG_NAME=$4
     CONTEXT_NAME=$5
     MASTER_ADDR=$6
-
+    which kubectl
+    if [ $? == 0 ];then
+      K8S_BIN_DIR=`which kubectl | awk -F '/kubectl' '{print $1}'`
+    fi
     # 设置集群
     ${K8S_BIN_DIR}/kubectl config set-cluster ${CLUSTER_NAME} \
     --certificate-authority=${PKI_FILES_DIR}/k8s-ca.pem \
