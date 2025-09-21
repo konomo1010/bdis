@@ -1,0 +1,16 @@
+version: '3'
+networks:
+  base-network:
+    external:
+      name: mynet
+
+
+services:
+  nexus3:
+    image: sonatype/nexus3
+    ports:
+      - "8081:8081"
+    volumes:
+      - ${nexus_data_dir}:/nexus-data
+    networks:
+      - base-network

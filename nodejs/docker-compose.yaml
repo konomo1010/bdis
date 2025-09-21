@@ -1,0 +1,16 @@
+version: '3'
+networks:
+  base-network:
+    external:
+      name: mynet
+
+services:
+  node:
+    image: node:v24.8.0
+    volumes:
+      - ${node_modules}:/root/.npm/node_modules
+      - ${node_cache}:/root/.npm/npm-cache
+      - ${npmrc}:/root/.npmrc
+    command: tail -f /dev/null
+    networks:
+      - base-network

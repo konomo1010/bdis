@@ -1,0 +1,12 @@
+version: '3'
+networks:
+  base-network:
+    external:
+      name: mynet
+
+services:
+  busybox:
+    image: busybox
+    command: tail -f /dev/null
+    networks:
+      - base-network
