@@ -1,0 +1,4 @@
+registry=http://nexus3:8081/repository/taobao_npm_group/
+strict-ssl=false
+prefix=/root/.npm/node_modules
+cache=/root/.npm/npm-cache
